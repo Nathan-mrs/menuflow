@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import { useRestaurant } from '../../context/RestaurantContext';
 import { formatPrice, isValidPrice } from '../../utils/formatters';
 import { X, Heart, Star, Trash2, Pizza } from 'lucide-react';
@@ -19,8 +19,8 @@ export const FavoritesDrawer = () => {
   const favoritedProducts = (restaurant?.products || []).filter((product) => favorites.includes(product.id));
 
   return (
-    <div className="modal-backdrop" onClick={() => setFavoritesOpen(false)} role="dialog" aria-modal="true">
-      <div className="modal-content-sheet animate-slide-up favorites-sheet" onClick={(event) => event.stopPropagation()}>
+    <section className="menu-panel-backdrop favorites-panel" role="region" aria-label="Favoritos">
+      <div className="menu-panel-sheet animate-slide-up favorites-sheet">
         <div className="modal-drag-handle"></div>
         <div className="drawer-heading-row">
           <div className="drawer-title-row"><Heart size={20} fill="#EF4444" color="#EF4444" /><h3>Favoritos ({favoritedProducts.length})</h3></div>
@@ -37,7 +37,7 @@ export const FavoritesDrawer = () => {
             </div>
           ) : (
             favoritedProducts.map((product) => (
-              <div key={product.id} className="search-result-item favorite-result-item" onClick={() => { setSelectedProduct(product); setFavoritesOpen(false); }}>
+              <div key={product.id} role="button" tabIndex={0} className="search-result-item favorite-result-item" onClick={() => { setSelectedProduct(product); setFavoritesOpen(false); }} onKeyDown={(event) => { if (event.key === 'Enter' || event.key === ' ') { setSelectedProduct(product); setFavoritesOpen(false); } }}>
                 <img src={product.image} alt={product.name} className="search-result-thumb" />
                 <div className="search-result-info">
                   <h4>{product.name}</h4>
@@ -54,6 +54,6 @@ export const FavoritesDrawer = () => {
           )}
         </div>
       </div>
-    </div>
+    </section>
   );
 };

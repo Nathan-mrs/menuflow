@@ -1,4 +1,4 @@
-﻿import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useRestaurant } from '../../context/RestaurantContext';
 import { formatPrice, isValidPrice } from '../../utils/formatters';
 import { Search, X, Star, ArrowRight } from 'lucide-react';
@@ -6,7 +6,7 @@ import { Search, X, Star, ArrowRight } from 'lucide-react';
 const displaySearchPrice = (product) => {
   if (product.sizes?.length) {
     const validSizes = product.sizes.filter((size) => isValidPrice(size.price));
-    if (!validSizes.length) return 'PreÃ§o indisponÃ­vel';
+    if (!validSizes.length) return 'Preco indisponivel';
     return `a partir de ${formatPrice(Math.min(...validSizes.map((size) => Number(size.price))))}`;
   }
   return formatPrice(product.price);
@@ -31,52 +31,31 @@ export const SearchOverlay = () => {
   if (!searchOpen) return null;
 
   return (
-    <div className="search-overlay animate-fade-in" role="dialog" aria-modal="true">
-      <div className="search-container">
-        {/* Search Bar */}
+    <section className="search-overlay menu-panel-backdrop animate-fade-in" role="region" aria-label="Busca de produtos">
+      <div className="search-container menu-panel-sheet">
         <div className="search-input-wrapper">
           <Search size={20} color="var(--accent-secondary)" />
           <input
             type="text"
             className="search-input-field"
-            placeholder="Buscar no cardÃƒÂ¡pio (ex: calabresa, trufa, burger)..."
+            placeholder="Buscar no cardapio (ex: calabresa, Catupiry, refrigerante)..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             autoFocus
           />
-          <button
-            type="button"
-            className="icon-btn"
-            style={{ width: '30px', height: '30px' }}
-            onClick={() => setSearchOpen(false)}
-            aria-label="Fechar busca"
-          >
+          <button type="button" className="icon-btn" style={{ width: '30px', height: '30px' }} onClick={() => setSearchOpen(false)} aria-label="Fechar busca">
             <X size={16} />
           </button>
         </div>
 
-        {/* Quick Filter Suggestions */}
         {!query && (
           <div style={{ marginBottom: '16px' }}>
             <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
               Termos mais buscados:
             </span>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '8px' }}>
-              {['Calabresa', 'Catupiry', 'Smash Burger', 'Trufado', 'Bacon', 'Nutella', 'Costela'].map((tag) => (
-                <button
-                  key={tag}
-                  type="button"
-                  onClick={() => setQuery(tag)}
-                  style={{
-                    background: 'rgba(255, 255, 255, 0.05)',
-                    border: '1px solid rgba(255, 255, 255, 0.1)',
-                    color: 'var(--text-secondary)',
-                    padding: '6px 12px',
-                    borderRadius: 'var(--radius-full)',
-                    fontSize: '0.78rem',
-                    fontWeight: 600,
-                  }}
-                >
+              {['Calabresa', 'Catupiry', 'Margherita', 'Frango', 'Batata', 'Refrigerante'].map((tag) => (
+                <button key={tag} type="button" onClick={() => setQuery(tag)} className="search-suggestion-chip">
                   {tag}
                 </button>
               ))}
@@ -84,20 +63,16 @@ export const SearchOverlay = () => {
           </div>
         )}
 
-        {/* Results */}
         <div className="search-results-list">
           {query.trim() && filteredProducts.length === 0 ? (
             <div style={{ textAlign: 'center', padding: '40px 20px', color: 'var(--text-muted)' }}>
-              <p style={{ fontSize: '1.05rem', fontWeight: 600, color: 'var(--text-secondary)' }}>
-                Nenhum prato encontrado para "{query}"
-              </p>
-              <p style={{ fontSize: '0.82rem', marginTop: '4px' }}>
-                Tente pesquisar por ingredientes ou nomes de categorias.
-              </p>
+              <p style={{ fontSize: '1.05rem', fontWeight: 600, color: 'var(--text-secondary)' }}>Nenhum produto encontrado para "{query}"</p>
+              <p style={{ fontSize: '0.82rem', marginTop: '4px' }}>Tente pesquisar por ingredientes ou nomes de categorias.</p>
             </div>
           ) : (
             filteredProducts.map((prod) => (
-              <div
+              <button
+                type="button"
                 key={prod.id}
                 className="search-result-item"
                 onClick={() => {
@@ -107,27 +82,20 @@ export const SearchOverlay = () => {
               >
                 <img src={prod.image} alt={prod.name} className="search-result-thumb" />
                 <div className="search-result-info">
-                  <h4 style={{ fontSize: '0.92rem', fontWeight: 700, color: 'var(--text-primary)' }}>
-                    {prod.name}
-                  </h4>
+                  <h4 style={{ fontSize: '0.92rem', fontWeight: 700, color: 'var(--text-primary)' }}>{prod.name}</h4>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '3px' }}>
                     <span style={{ fontSize: '0.75rem', color: 'var(--star-gold)', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '2px' }}>
                       {prod.reviewsCount > 0 && prod.rating ? <><Star size={11} fill="currentColor" /> {Number(prod.rating).toFixed(1)}</> : 'Sem avaliacoes'}
                     </span>
-                    <span style={{ fontSize: '0.75rem', color: 'var(--accent-secondary)', fontWeight: 800 }}>
-                      {displaySearchPrice(prod)}
-                    </span>
+                    <span style={{ fontSize: '0.75rem', color: 'var(--accent-secondary)', fontWeight: 800 }}>{displaySearchPrice(prod)}</span>
                   </div>
                 </div>
                 <ArrowRight size={16} color="var(--text-muted)" />
-              </div>
+              </button>
             ))
           )}
         </div>
       </div>
-    </div>
+    </section>
   );
 };
-
-
-

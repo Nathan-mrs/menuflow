@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import { useRestaurant } from '../../context/RestaurantContext';
 import { X, MapPin, Clock, Phone, Navigation, CreditCard, ShieldCheck } from 'lucide-react';
 
@@ -19,8 +19,8 @@ export const RestaurantInfoModal = () => {
   const hasPhone = Boolean(restaurant.phone);
 
   return (
-    <div className="modal-backdrop" onClick={() => setInfoOpen(false)} role="dialog" aria-modal="true">
-      <div className="modal-content-sheet animate-slide-up" style={{ maxHeight: '88vh' }} onClick={(event) => event.stopPropagation()}>
+    <section className="menu-panel-backdrop info-panel" role="region" aria-label="Informacoes da pizzaria">
+      <div className="menu-panel-sheet animate-slide-up info-panel-sheet">
         <div className="modal-drag-handle"></div>
         <div className="info-modal-header">
           <div className="info-brand-row"><span>{restaurant.logo}</span><div><h3>{restaurant.name}</h3><small>Informacoes e contato</small></div></div>
@@ -28,47 +28,17 @@ export const RestaurantInfoModal = () => {
         </div>
 
         <div className="info-modal-body">
-          <div className="info-highlight-card">
-            <p>{restaurant.tagline}</p>
-            <span>{restaurant.slogan}</span>
-          </div>
-
-          <div className="info-row-card">
-            <div className="info-icon-box"><Clock size={18} color="var(--accent-secondary)" /></div>
-            <div><small>Horario de funcionamento</small><strong>{restaurant.openingHours || 'Horario nao informado'}</strong><span><span className="status-dot"></span>{restaurant.statusText || 'Consulte disponibilidade'}</span></div>
-          </div>
-
-          <div className="info-row-card">
-            <div className="info-icon-box"><MapPin size={18} color="var(--accent-secondary)" /></div>
-            <div>
-              <small>Endereco</small>
-              <strong>{restaurant.address || 'Endereco nao informado'}</strong>
-              {restaurant.isDemo && <span>Endereco ilustrativo para demonstracao. Nenhuma rota real foi configurada.</span>}
-              {hasMapsUrl && (
-                <a href={restaurant.mapsUrl} target="_blank" rel="noopener noreferrer" className="maps-link-btn"><Navigation size={14} /> Ver rota no Google Maps</a>
-              )}
-            </div>
-          </div>
-
+          <div className="info-highlight-card"><p>{restaurant.tagline}</p><span>{restaurant.slogan}</span></div>
+          <div className="info-row-card"><div className="info-icon-box"><Clock size={18} color="var(--accent-secondary)" /></div><div><small>Horario de funcionamento</small><strong>{restaurant.openingHours || 'Horario nao informado'}</strong><span><span className="status-dot"></span>{restaurant.statusText || 'Consulte disponibilidade'}</span></div></div>
+          <div className="info-row-card"><div className="info-icon-box"><MapPin size={18} color="var(--accent-secondary)" /></div><div><small>Endereco</small><strong>{restaurant.address || 'Endereco nao informado'}</strong>{restaurant.isDemo && <span>Endereco ilustrativo para demonstracao. Nenhuma rota real foi configurada.</span>}{hasMapsUrl && <a href={restaurant.mapsUrl} target="_blank" rel="noopener noreferrer" className="maps-link-btn"><Navigation size={14} /> Ver rota no Google Maps</a>}</div></div>
           <div className="info-actions-grid">
-            {hasInstagram && (
-              <a href={`https://instagram.com/${restaurant.instagram.replace('@', '')}`} target="_blank" rel="noopener noreferrer" className="btn-secondary-action">
-                <InstagramIcon size={18} color="#E1306C" /> Instagram
-              </a>
-            )}
-            {hasPhone && (
-              <a href={`tel:${restaurant.phone.replace(/\D/g, '')}`} className="btn-secondary-action"><Phone size={18} color="var(--accent-secondary)" /> Ligar</a>
-            )}
+            {hasInstagram && <a href={`https://instagram.com/${restaurant.instagram.replace('@', '')}`} target="_blank" rel="noopener noreferrer" className="btn-secondary-action"><InstagramIcon size={18} color="#E1306C" /> Instagram</a>}
+            {hasPhone && <a href={`tel:${restaurant.phone.replace(/\D/g, '')}`} className="btn-secondary-action"><Phone size={18} color="var(--accent-secondary)" /> Ligar</a>}
           </div>
-
-          <div className="payment-card">
-            <div><CreditCard size={16} color="var(--accent-secondary)" /><strong>Pagamento</strong></div>
-            <span>A forma de pagamento e taxa de entrega sao confirmadas na conversa com a pizzaria.</span>
-          </div>
-
+          <div className="payment-card"><div><CreditCard size={16} color="var(--accent-secondary)" /><strong>Pagamento</strong></div><span>A forma de pagamento e taxa de entrega sao confirmadas na conversa com a pizzaria.</span></div>
           <div className="info-footer-note"><ShieldCheck size={20} color="#34D399" /><span>{restaurant.isDemo ? 'Demonstracao MenuFlow com dados ficticios.' : 'Cardapio digital personalizado mantido pelo desenvolvedor.'} Avaliacoes aparecem quando coletadas por convite verificado.</span></div>
         </div>
       </div>
-    </div>
+    </section>
   );
 };
