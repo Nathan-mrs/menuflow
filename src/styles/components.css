@@ -1671,3 +1671,283 @@
     height: 36px;
   }
 }
+
+/* Sellable pizza menu refinements */
+.menu-error-shell {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.menu-error-card {
+  width: calc(100% - 32px);
+  max-width: 520px;
+  margin: auto;
+  padding: 28px 22px;
+  border-radius: var(--radius-lg);
+  background: rgba(255, 255, 255, 0.055);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.42);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: center;
+}
+
+.menu-error-card h1 {
+  font-family: var(--font-heading);
+  font-size: 1.55rem;
+  line-height: 1.15;
+}
+
+.menu-error-card p {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.menu-error-icon {
+  width: 58px;
+  height: 58px;
+  border-radius: var(--radius-full);
+  background: rgba(255, 184, 0, 0.12);
+  color: #f8d67a;
+  display: grid;
+  place-items: center;
+}
+
+.pizza-product-card {
+  background: rgba(20, 20, 20, 0.62);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(14px) saturate(1.1);
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.28);
+}
+
+.pizza-product-card .product-card-body {
+  background: linear-gradient(90deg, rgba(12, 12, 12, 0.7), rgba(24, 24, 24, 0.46));
+}
+
+.pizza-product-card .product-title,
+.pizza-product-card .price-text {
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.28);
+}
+
+.segmented-control {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  padding: 4px;
+  border-radius: var(--radius-full);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+}
+
+.segmented-control button {
+  min-height: 36px;
+  border-radius: var(--radius-full);
+  color: var(--text-secondary);
+  font-weight: 800;
+}
+
+.segmented-control button.active {
+  color: #080808;
+  background: var(--accent-gradient);
+}
+
+.option-help-text {
+  margin: 10px 0 8px;
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  line-height: 1.45;
+}
+
+.qr-modal-sheet {
+  max-height: 90vh;
+}
+
+.qr-modal-header,
+.info-modal-header {
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.qr-title-row,
+.info-brand-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.qr-title-row h3,
+.info-brand-row h3 {
+  font-family: var(--font-heading);
+  font-size: 1.15rem;
+  font-weight: 800;
+}
+
+.info-brand-row > span {
+  font-size: 1.35rem;
+}
+
+.info-brand-row small {
+  color: var(--text-secondary);
+  font-size: 0.72rem;
+}
+
+.qr-modal-body,
+.info-modal-body {
+  padding: 20px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.qr-helper-text {
+  color: var(--text-secondary);
+  text-align: center;
+  font-size: 0.86rem;
+  line-height: 1.45;
+}
+
+.qr-print-card {
+  background: #fff;
+  color: #111;
+  border-radius: 18px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.45);
+}
+
+.qr-print-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 900;
+}
+
+.qr-print-brand span {
+  display: grid;
+  place-items: center;
+  min-width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: #111;
+  color: #fff;
+  font-weight: 900;
+}
+
+.qr-image {
+  width: min(100%, 300px);
+  aspect-ratio: 1;
+  image-rendering: pixelated;
+  border: 12px solid #fff;
+}
+
+.qr-url-label {
+  max-width: 300px;
+  color: #555;
+  font-size: 0.68rem;
+  word-break: break-all;
+  text-align: center;
+}
+
+.qr-actions-row,
+.info-actions-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.qr-empty-card {
+  text-align: left;
+}
+
+.info-highlight-card,
+.payment-card,
+.info-footer-note,
+.info-row-card {
+  padding: 14px;
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.045);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.info-highlight-card p {
+  color: var(--text-primary);
+  font-weight: 800;
+}
+
+.info-highlight-card span,
+.payment-card span,
+.info-footer-note span,
+.info-row-card span {
+  color: var(--text-secondary);
+  font-size: 0.78rem;
+  line-height: 1.45;
+}
+
+.info-row-card {
+  display: grid;
+  grid-template-columns: 38px 1fr;
+  gap: 12px;
+}
+
+.info-row-card small {
+  color: var(--text-muted);
+  text-transform: uppercase;
+  font-size: 0.7rem;
+  font-weight: 800;
+}
+
+.info-row-card strong {
+  display: block;
+  color: var(--text-primary);
+  font-size: 0.9rem;
+  margin: 2px 0;
+}
+
+.info-icon-box {
+  width: 38px;
+  height: 38px;
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.06);
+  display: grid;
+  place-items: center;
+}
+
+.maps-link-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+  color: var(--accent-secondary);
+  font-weight: 800;
+  font-size: 0.8rem;
+  text-decoration: none;
+}
+
+.payment-card div,
+.info-footer-note {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+@media (max-width: 520px) {
+  .qr-actions-row,
+  .info-actions-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .pizza-product-card {
+    background: rgba(18, 18, 18, 0.74);
+  }
+}

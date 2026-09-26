@@ -3,16 +3,7 @@ import { useRestaurant } from '../../context/RestaurantContext';
 import { X, MapPin, Clock, Phone, Navigation, CreditCard, ShieldCheck } from 'lucide-react';
 
 const InstagramIcon = ({ size = 18, color = '#E1306C' }) => (
-  <svg
-    width={size}
-    height={size}
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke={color}
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <rect width="20" height="20" x="2" y="2" rx="5" ry="5" />
     <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
     <line x1="17.5" x2="17.51" y1="6.5" y2="6.5" />
@@ -21,157 +12,63 @@ const InstagramIcon = ({ size = 18, color = '#E1306C' }) => (
 
 export const RestaurantInfoModal = () => {
   const { restaurant, infoOpen, setInfoOpen } = useRestaurant();
-
   if (!infoOpen) return null;
 
-  return (
-    <div
-      className="modal-backdrop"
-      onClick={() => setInfoOpen(false)}
-      role="dialog"
-      aria-modal="true"
-    >
-      <div
-        className="modal-content-sheet animate-slide-up"
-        style={{ maxHeight: '88vh' }}
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="modal-drag-handle"></div>
+  const hasMapsUrl = Boolean(restaurant.mapsUrl && !restaurant.isDemo);
+  const hasInstagram = Boolean(restaurant.instagram);
+  const hasPhone = Boolean(restaurant.phone);
 
-        <div style={{ padding: '16px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span style={{ fontSize: '1.4rem' }}>{restaurant.logo}</span>
-            <div>
-              <h3 style={{ fontFamily: 'var(--font-heading)', fontSize: '1.15rem', fontWeight: 800 }}>
-                {restaurant.name}
-              </h3>
-              <span style={{ fontSize: '0.72rem', color: 'var(--text-secondary)' }}>
-                InformaÃ§Ãµes & Contato
-              </span>
-            </div>
-          </div>
-          <button
-            type="button"
-            className="icon-btn"
-            onClick={() => setInfoOpen(false)}
-            aria-label="Fechar informaÃ§Ãµes"
-          >
-            <X size={18} />
-          </button>
+  return (
+    <div className="modal-backdrop" onClick={() => setInfoOpen(false)} role="dialog" aria-modal="true">
+      <div className="modal-content-sheet animate-slide-up" style={{ maxHeight: '88vh' }} onClick={(event) => event.stopPropagation()}>
+        <div className="modal-drag-handle"></div>
+        <div className="info-modal-header">
+          <div className="info-brand-row"><span>{restaurant.logo}</span><div><h3>{restaurant.name}</h3><small>Informacoes e contato</small></div></div>
+          <button type="button" className="icon-btn" onClick={() => setInfoOpen(false)} aria-label="Fechar informacoes"><X size={18} /></button>
         </div>
 
-        <div style={{ padding: '20px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '18px' }}>
-          {/* Tagline Card */}
-          <div style={{ background: 'rgba(255, 138, 31, 0.08)', border: '1px solid rgba(255, 138, 31, 0.25)', borderRadius: 'var(--radius-md)', padding: '14px' }}>
-            <p style={{ fontSize: '0.88rem', color: '#FFFFFF', fontWeight: 600, lineHeight: 1.4 }}>
-              "{restaurant.tagline}"
-            </p>
-            <p style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', marginTop: '4px' }}>
-              {restaurant.slogan}
-            </p>
+        <div className="info-modal-body">
+          <div className="info-highlight-card">
+            <p>{restaurant.tagline}</p>
+            <span>{restaurant.slogan}</span>
           </div>
 
-          {/* Opening Hours */}
-          <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
-            <div style={{ width: '36px', height: '36px', borderRadius: 'var(--radius-sm)', background: 'rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-              <Clock size={18} color="var(--accent-secondary)" />
-            </div>
+          <div className="info-row-card">
+            <div className="info-icon-box"><Clock size={18} color="var(--accent-secondary)" /></div>
+            <div><small>Horario de funcionamento</small><strong>{restaurant.openingHours || 'Horario nao informado'}</strong><span><span className="status-dot"></span>{restaurant.statusText || 'Consulte disponibilidade'}</span></div>
+          </div>
+
+          <div className="info-row-card">
+            <div className="info-icon-box"><MapPin size={18} color="var(--accent-secondary)" /></div>
             <div>
-              <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                HorÃ¡rio de Funcionamento
-              </span>
-              <p style={{ fontSize: '0.88rem', fontWeight: 600, color: 'var(--text-primary)', marginTop: '2px' }}>
-                {restaurant.openingHours}
-              </p>
-              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', fontSize: '0.72rem', color: '#34D399', fontWeight: 600, marginTop: '2px' }}>
-                <span className="status-dot"></span> Aberto hoje para pedidos
-              </span>
+              <small>Endereco</small>
+              <strong>{restaurant.address || 'Endereco nao informado'}</strong>
+              {restaurant.isDemo && <span>Endereco ilustrativo para demonstracao. Nenhuma rota real foi configurada.</span>}
+              {hasMapsUrl && (
+                <a href={restaurant.mapsUrl} target="_blank" rel="noopener noreferrer" className="maps-link-btn"><Navigation size={14} /> Ver rota no Google Maps</a>
+              )}
             </div>
           </div>
 
-          {/* Address */}
-          <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
-            <div style={{ width: '36px', height: '36px', borderRadius: 'var(--radius-sm)', background: 'rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-              <MapPin size={18} color="var(--accent-secondary)" />
-            </div>
-            <div style={{ flex: 1 }}>
-              <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                EndereÃ§o
-              </span>
-              <p style={{ fontSize: '0.88rem', fontWeight: 600, color: 'var(--text-primary)', marginTop: '2px' }}>
-                {restaurant.address}
-              </p>
-              <a
-                href={restaurant.mapsUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                  marginTop: '8px',
-                  fontSize: '0.8rem',
-                  fontWeight: 700,
-                  color: 'var(--accent-secondary)',
-                  textDecoration: 'none',
-                }}
-              >
-                <Navigation size={14} />
-                <span>Como chegar no Google Maps</span>
+          <div className="info-actions-grid">
+            {hasInstagram && (
+              <a href={`https://instagram.com/${restaurant.instagram.replace('@', '')}`} target="_blank" rel="noopener noreferrer" className="btn-secondary-action">
+                <InstagramIcon size={18} color="#E1306C" /> Instagram
               </a>
-            </div>
+            )}
+            {hasPhone && (
+              <a href={`tel:${restaurant.phone.replace(/\D/g, '')}`} className="btn-secondary-action"><Phone size={18} color="var(--accent-secondary)" /> Ligar</a>
+            )}
           </div>
 
-          {/* Social & Contact Buttons */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-            <a
-              href={`https://instagram.com/${restaurant.instagram.replace('@', '')}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn-secondary-action"
-              style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', padding: '12px', textDecoration: 'none' }}
-            >
-              <InstagramIcon size={18} color="#E1306C" />
-              <span>Instagram</span>
-            </a>
-
-            <a
-              href={`tel:${restaurant.phone.replace(/\D/g, '')}`}
-              className="btn-secondary-action"
-              style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', padding: '12px', textDecoration: 'none' }}
-            >
-              <Phone size={18} color="var(--accent-secondary)" />
-              <span>Ligar</span>
-            </a>
+          <div className="payment-card">
+            <div><CreditCard size={16} color="var(--accent-secondary)" /><strong>Pagamento</strong></div>
+            <span>A forma de pagamento e taxa de entrega sao confirmadas na conversa com a pizzaria.</span>
           </div>
 
-          {/* Payment Methods */}
-          <div style={{ borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: '16px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
-              <CreditCard size={16} color="var(--accent-secondary)" />
-              <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-primary)' }}>
-                Formas de Pagamento Aceitas
-              </span>
-            </div>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
-              {['Pix (Chave AutomÃ¡tica)', 'CartÃ£o de CrÃ©dito', 'CartÃ£o de DÃ©bito', 'VR / Alelo / Sodexo', 'Dinheiro com Troco'].map((pay) => (
-                <span key={pay} className="ingredient-chip">
-                  {pay}
-                </span>
-              ))}
-            </div>
-          </div>
-
-          {/* Security / Quality Seal */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'rgba(255,255,255,0.02)', padding: '12px', borderRadius: 'var(--radius-md)', border: '1px solid rgba(255,255,255,0.06)' }}>
-            <ShieldCheck size={20} color="#34D399" />
-            <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-              Cardapio demonstrativo operado sob tecnologia <strong style={{ color: '#FFFFFF' }}>MenuFlow</strong>. Avaliacoes aparecem quando coletadas por convite verificado.
-            </span>
-          </div>
+          <div className="info-footer-note"><ShieldCheck size={20} color="#34D399" /><span>{restaurant.isDemo ? 'Demonstracao MenuFlow com dados ficticios.' : 'Cardapio digital personalizado mantido pelo desenvolvedor.'} Avaliacoes aparecem quando coletadas por convite verificado.</span></div>
         </div>
       </div>
     </div>
   );
 };
-

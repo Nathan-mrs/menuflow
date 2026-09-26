@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
+﻿import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import { DEMO_RESTAURANT } from '../data/demoRestaurant';
 import { isSupabaseConfigured } from '../lib/supabaseClient';
 import { loadPublicRestaurant } from '../services/menuRepository';
@@ -6,9 +6,12 @@ import { isValidPrice, parsePrice } from '../utils/formatters';
 
 const RestaurantContext = createContext();
 
+const explicitDemoMode = import.meta.env.VITE_MENUFLOW_DEMO_MODE === 'true';
+const shouldUseDemo = explicitDemoMode || !isSupabaseConfigured;
+
 export const RestaurantProvider = ({ children }) => {
   const [remoteRestaurant, setRemoteRestaurant] = useState(null);
-  const [menuLoading, setMenuLoading] = useState(isSupabaseConfigured);
+  const [menuLoading, setMenuLoading] = useState(isSupabaseConfigured && !shouldUseDemo);
   const [menuError, setMenuError] = useState(null);
   const [activeCategory, setActiveCategory] = useState('pizzas');
   const [selectedProduct, setSelectedProduct] = useState(null);
@@ -20,10 +23,12 @@ export const RestaurantProvider = ({ children }) => {
   const [cartItems, setCartItems] = useState([]);
 
   const fallbackRestaurant = useMemo(() => DEMO_RESTAURANT, []);
-  const restaurant = remoteRestaurant || fallbackRestaurant;
+  const restaurant = shouldUseDemo ? fallbackRestaurant : remoteRestaurant;
 
   const refreshPublicMenu = async () => {
-    if (!isSupabaseConfigured) {
+    if (shouldUseDemo) {
+      setRemoteRestaurant(null);
+      setMenuError(null);
       setMenuLoading(false);
       return;
     }
@@ -32,10 +37,12 @@ export const RestaurantProvider = ({ children }) => {
     setMenuError(null);
     try {
       const loadedRestaurant = await loadPublicRestaurant();
-      if (loadedRestaurant) setRemoteRestaurant(loadedRestaurant);
+      if (!loadedRestaurant) throw new Error('Restaurante nao encontrado para o slug configurado.');
+      setRemoteRestaurant(loadedRestaurant);
     } catch (error) {
       console.error('Supabase public menu load error:', error);
-      setMenuError('Cardapio demonstrativo carregado. A consulta ao Supabase falhou; verifique se as migracoes foram aplicadas.');
+      setRemoteRestaurant(null);
+      setMenuError(error.message || 'Nao foi possivel carregar o cardapio desta pizzaria.');
     } finally {
       setMenuLoading(false);
     }
@@ -46,38 +53,39 @@ export const RestaurantProvider = ({ children }) => {
   }, []);
 
   useEffect(() => {
-    if (restaurant.categories?.length) setActiveCategory(restaurant.categories[0].id);
-  }, [restaurant.id]);
+    if (restaurant?.categories?.length) setActiveCategory(restaurant.categories[0].id);
+  }, [restaurant?.id]);
 
   const showToast = (message, type = 'success') => {
     setToast({ id: Date.now(), message, type });
     setTimeout(() => setToast(null), 3200);
   };
 
-  const addToCart = ({ product, quantity = 1, notes = '', size = null }) => {
+  const addToCart = ({ product, quantity = 1, notes = '', size = null, configuration = null, unitPrice: explicitUnitPrice = null }) => {
     if (product.sizes?.length && !size) {
       setSelectedProduct(product);
       showToast('Escolha o tamanho antes de adicionar.', 'warning');
       return;
     }
 
-    const unitPrice = parsePrice(size ? size.price : product.price);
+    const unitPrice = parsePrice(explicitUnitPrice ?? (size ? size.price : product.price));
     if (!isValidPrice(unitPrice)) {
       setSelectedProduct(product);
       showToast('Preco indisponivel para este item. Ajuste o cadastro antes de vender.', 'error');
       return;
     }
 
+    const configKey = JSON.stringify(configuration || {});
     setCartItems((current) => {
       const existingIndex = current.findIndex(
-        (item) => item.product.id === product.id && item.notes === notes && (item.size?.id || '') === (size?.id || '')
+        (item) => item.product.id === product.id && item.notes === notes && (item.size?.id || '') === (size?.id || '') && JSON.stringify(item.configuration || {}) === configKey
       );
       if (existingIndex >= 0) {
         return current.map((item, index) =>
           index === existingIndex ? { ...item, quantity: item.quantity + quantity } : item
         );
       }
-      return [...current, { id: `${product.id}-${size?.id || 'single'}-${Date.now()}`, product, size, quantity, notes, unitPrice }];
+      return [...current, { id: `${product.id}-${size?.id || 'single'}-${Date.now()}`, product, size, quantity, notes, unitPrice, configuration }];
     });
     setCartOpen(true);
     showToast('Item adicionado ao carrinho');
@@ -99,6 +107,7 @@ export const RestaurantProvider = ({ children }) => {
     <RestaurantContext.Provider
       value={{
         restaurant,
+        isDemoMode: shouldUseDemo,
         menuLoading,
         menuError,
         refreshPublicMenu,
