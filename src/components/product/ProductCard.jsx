@@ -1,12 +1,12 @@
-import React from 'react';
+﻿import React from 'react';
 import { useRestaurant } from '../../context/RestaurantContext';
 import { formatPrice, isValidPrice } from '../../utils/formatters';
-import { Star, Plus } from 'lucide-react';
+import { Star, Plus, Heart } from 'lucide-react';
 
 const displayPrice = (product) => {
   if (product.sizes?.length) {
     const validSizes = product.sizes.filter((size) => isValidPrice(size.price));
-    if (!validSizes.length) return 'Preço indisponível';
+    if (!validSizes.length) return 'Preco indisponivel';
     const minPrice = Math.min(...validSizes.map((size) => Number(size.price)));
     return `a partir de ${formatPrice(minPrice)}`;
   }
@@ -14,9 +14,10 @@ const displayPrice = (product) => {
 };
 
 export const ProductCard = ({ product }) => {
-  const { setSelectedProduct, addToCart } = useRestaurant();
+  const { setSelectedProduct, addToCart, toggleFavorite, isFavorite } = useRestaurant();
   const hasReviews = product.reviewsCount > 0 && product.rating;
   const hasSizes = product.sizes?.length > 0;
+  const favorited = isFavorite(product.id);
 
   const handleQuickAdd = () => {
     if (hasSizes) {
@@ -49,6 +50,9 @@ export const ProductCard = ({ product }) => {
             {product.servings && <span>{product.servings}</span>}
           </div>
         </div>
+      </button>
+      <button type="button" className={`favorite-btn product-favorite-btn ${favorited ? 'favorited' : ''}`} onClick={() => toggleFavorite(product.id)} aria-label={favorited ? `Remover ${product.name} dos favoritos` : `Salvar ${product.name} nos favoritos`}>
+        <Heart size={16} fill={favorited ? 'currentColor' : 'none'} />
       </button>
       <button type="button" className="quick-add-btn" onClick={handleQuickAdd} aria-label={`Adicionar ${product.name} ao carrinho`}>
         <Plus size={18} />

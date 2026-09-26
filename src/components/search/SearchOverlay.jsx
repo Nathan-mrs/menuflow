@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+﻿import React, { useState, useMemo } from 'react';
 import { useRestaurant } from '../../context/RestaurantContext';
 import { formatPrice, isValidPrice } from '../../utils/formatters';
 import { Search, X, Star, ArrowRight } from 'lucide-react';
@@ -6,7 +6,7 @@ import { Search, X, Star, ArrowRight } from 'lucide-react';
 const displaySearchPrice = (product) => {
   if (product.sizes?.length) {
     const validSizes = product.sizes.filter((size) => isValidPrice(size.price));
-    if (!validSizes.length) return 'Preço indisponível';
+    if (!validSizes.length) return 'PreÃ§o indisponÃ­vel';
     return `a partir de ${formatPrice(Math.min(...validSizes.map((size) => Number(size.price))))}`;
   }
   return formatPrice(product.price);
@@ -39,7 +39,7 @@ export const SearchOverlay = () => {
           <input
             type="text"
             className="search-input-field"
-            placeholder="Buscar no cardÃ¡pio (ex: calabresa, trufa, burger)..."
+            placeholder="Buscar no cardÃƒÂ¡pio (ex: calabresa, trufa, burger)..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             autoFocus
@@ -128,5 +128,6 @@ export const SearchOverlay = () => {
     </div>
   );
 };
+
 
 

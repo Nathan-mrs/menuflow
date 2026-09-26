@@ -8,6 +8,8 @@ import { ProductModal } from './components/product/ProductModal';
 import { SearchOverlay } from './components/search/SearchOverlay';
 import { RestaurantInfoModal } from './components/info/RestaurantInfoModal';
 import { QRCodeModal } from './components/qrcode/QRCodeModal';
+import { BottomNavigation } from './components/layout/BottomNavigation';
+import { FavoritesDrawer } from './components/favorites/FavoritesDrawer';
 import { Toast } from './components/common/Toast';
 import { AdminPage } from './components/admin/AdminPage';
 import { CartDrawer } from './components/cart/CartDrawer';
@@ -111,6 +113,8 @@ function AppContent() {
       <SearchOverlay />
       <RestaurantInfoModal />
       <QRCodeModal />
+      <FavoritesDrawer />
+      <BottomNavigation />
       <Toast />
     </div>
   );
@@ -126,3 +130,4 @@ export default function App() {
 
   return <AppContent />;
 }
+

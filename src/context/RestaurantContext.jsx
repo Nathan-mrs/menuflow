@@ -16,14 +16,35 @@ export const RestaurantProvider = ({ children }) => {
   const [activeCategory, setActiveCategory] = useState('pizzas');
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [searchOpen, setSearchOpen] = useState(false);
+  const [favoritesOpen, setFavoritesOpen] = useState(false);
   const [infoOpen, setInfoOpen] = useState(false);
   const [qrCodeOpen, setQrCodeOpen] = useState(false);
   const [toast, setToast] = useState(null);
   const [cartOpen, setCartOpen] = useState(false);
   const [cartItems, setCartItems] = useState([]);
+  const [favorites, setFavorites] = useState([]);
 
   const fallbackRestaurant = useMemo(() => DEMO_RESTAURANT, []);
   const restaurant = shouldUseDemo ? fallbackRestaurant : remoteRestaurant;
+
+  useEffect(() => {
+    if (!restaurant?.id) return;
+    try {
+      const saved = localStorage.getItem(`menuflow_favorites_${restaurant.id}`);
+      setFavorites(saved ? JSON.parse(saved) : []);
+    } catch {
+      setFavorites([]);
+    }
+  }, [restaurant?.id]);
+
+  useEffect(() => {
+    if (!restaurant?.id) return;
+    try {
+      localStorage.setItem(`menuflow_favorites_${restaurant.id}`, JSON.stringify(favorites));
+    } catch {
+      // localStorage may be unavailable in private contexts.
+    }
+  }, [favorites, restaurant?.id]);
 
   const refreshPublicMenu = async () => {
     if (shouldUseDemo) {
@@ -60,6 +81,17 @@ export const RestaurantProvider = ({ children }) => {
     setToast({ id: Date.now(), message, type });
     setTimeout(() => setToast(null), 3200);
   };
+
+  const toggleFavorite = (productId) => {
+    setFavorites((current) => {
+      const exists = current.includes(productId);
+      const next = exists ? current.filter((id) => id !== productId) : [...current, productId];
+      showToast(exists ? 'Removido dos favoritos' : 'Produto salvo nos favoritos');
+      return next;
+    });
+  };
+
+  const isFavorite = (productId) => favorites.includes(productId);
 
   const addToCart = ({ product, quantity = 1, notes = '', size = null, configuration = null, unitPrice: explicitUnitPrice = null }) => {
     if (product.sizes?.length && !size) {
@@ -117,6 +149,11 @@ export const RestaurantProvider = ({ children }) => {
         setSelectedProduct,
         searchOpen,
         setSearchOpen,
+        favorites,
+        favoritesOpen,
+        setFavoritesOpen,
+        toggleFavorite,
+        isFavorite,
         infoOpen,
         setInfoOpen,
         qrCodeOpen,
