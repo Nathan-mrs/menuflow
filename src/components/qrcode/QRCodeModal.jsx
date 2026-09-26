@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useRef } from 'react';
+﻿import React, { useState, useEffect, useRef } from 'react';
 import { useRestaurant } from '../../context/RestaurantContext';
 import { copyToClipboard } from '../../utils/formatters';
-import { X, Download, Share2, Copy, Check, Sparkles } from 'lucide-react';
+import { X, Download, Copy, Check, Sparkles } from 'lucide-react';
 
 export const QRCodeModal = () => {
   const { restaurant, qrCodeOpen, setQrCodeOpen, showToast } = useRestaurant();
@@ -90,7 +90,7 @@ export const QRCodeModal = () => {
     ctx.font = '24px serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillText(restaurant.logo || '🍕', size / 2, size / 2 + 2);
+    ctx.fillText(restaurant.logo || 'ðŸ•', size / 2, size / 2 + 2);
   }, [qrCodeOpen, selectedTable, restaurant]);
 
   if (!qrCodeOpen) return null;
@@ -110,7 +110,7 @@ export const QRCodeModal = () => {
     const success = await copyToClipboard(menuUrl);
     if (success) {
       setCopied(true);
-      showToast('Link do cardápio copiado!');
+      showToast('Link do cardÃ¡pio copiado!');
       setTimeout(() => setCopied(false), 2000);
     }
   };
@@ -133,7 +133,7 @@ export const QRCodeModal = () => {
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <Sparkles size={18} color="var(--accent-secondary)" />
             <h3 style={{ fontFamily: 'var(--font-heading)', fontSize: '1.2rem', fontWeight: 800 }}>
-              QR Code do Cardápio
+              QR Code do CardÃ¡pio
             </h3>
           </div>
           <button
@@ -148,13 +148,13 @@ export const QRCodeModal = () => {
 
         <div style={{ padding: '24px 20px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px', overflowY: 'auto' }}>
           <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', textAlign: 'center' }}>
-            Seus clientes apontam a câmera do celular para este código na mesa e acessam o cardápio instantaneamente.
+            Seus clientes apontam a cÃ¢mera do celular para este cÃ³digo na mesa e acessam o cardÃ¡pio instantaneamente.
           </p>
 
           {/* Table Selector */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)', fontWeight: 600 }}>Identificação:</span>
-            {['Geral', 'Mesa 01', 'Mesa 02', 'Mesa 03', 'Balcão'].map((tab) => (
+            <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)', fontWeight: 600 }}>IdentificaÃ§Ã£o:</span>
+            {['Geral', 'Mesa 01', 'Mesa 02', 'Mesa 03', 'BalcÃ£o'].map((tab) => (
               <button
                 key={tab}
                 type="button"
@@ -200,10 +200,10 @@ export const QRCodeModal = () => {
 
             <div style={{ textAlign: 'center' }}>
               <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#090909', textTransform: 'uppercase', letterSpacing: '1px' }}>
-                {selectedTable === 'Geral' ? 'Cardápio Digital' : selectedTable.toUpperCase()}
+                {selectedTable === 'Geral' ? 'CardÃ¡pio Digital' : selectedTable.toUpperCase()}
               </span>
               <p style={{ fontSize: '0.65rem', color: '#666666' }}>
-                Escaneie com a câmera do celular
+                Escaneie com a cÃ¢mera do celular
               </p>
             </div>
           </div>
@@ -236,3 +236,4 @@ export const QRCodeModal = () => {
     </div>
   );
 };
+

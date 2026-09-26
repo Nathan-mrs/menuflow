@@ -1,6 +1,6 @@
 import React from 'react';
 import { useRestaurant } from '../../context/RestaurantContext';
-import { Home, Search, Heart, Info, LayoutDashboard } from 'lucide-react';
+import { Home, Search, Heart, Info } from 'lucide-react';
 
 export const BottomNavigation = () => {
   const {
@@ -10,7 +10,6 @@ export const BottomNavigation = () => {
     favoritesOpen,
     setInfoOpen,
     infoOpen,
-    setAdminOpen,
   } = useRestaurant();
 
   const handleHomeClick = () => {
@@ -87,16 +86,6 @@ export const BottomNavigation = () => {
       >
         <Info size={20} className="nav-icon" />
         <span>Sobre</span>
-      </button>
-
-      <button
-        type="button"
-        className="nav-item"
-        onClick={() => setAdminOpen(true)}
-        title="Painel Administrativo MenuFlow"
-      >
-        <LayoutDashboard size={20} className="nav-icon" />
-        <span>Admin</span>
       </button>
     </nav>
   );

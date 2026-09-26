@@ -1,7 +1,7 @@
-import React from 'react';
+﻿import React from 'react';
 import { useRestaurant } from '../../context/RestaurantContext';
 import { formatPrice } from '../../utils/formatters';
-import { X, Heart, Star, ArrowRight, Trash2 } from 'lucide-react';
+import { X, Heart, Star, Trash2 } from 'lucide-react';
 
 export const FavoritesDrawer = () => {
   const {
@@ -51,19 +51,19 @@ export const FavoritesDrawer = () => {
         <div style={{ padding: '20px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '12px' }}>
           {favoritedProducts.length === 0 ? (
             <div style={{ textAlign: 'center', padding: '40px 10px', color: 'var(--text-muted)' }}>
-              <div style={{ fontSize: '2.5rem', marginBottom: '10px' }}>🍕❤️</div>
+              <div style={{ fontSize: '2.5rem', marginBottom: '10px' }}>ðŸ•â¤ï¸</div>
               <h4 style={{ fontSize: '1.1rem', fontWeight: 700, color: 'var(--text-primary)' }}>
                 Nenhum favorito ainda
               </h4>
               <p style={{ fontSize: '0.82rem', marginTop: '6px', maxWidth: '280px', margin: '6px auto 16px auto' }}>
-                Clique no ícone de coração nos pratos que você mais gosta para salvá-los aqui e pedir com facilidade!
+                Clique no Ã­cone de coraÃ§Ã£o nos pratos que vocÃª mais gosta para salvÃ¡-los aqui e pedir com facilidade!
               </p>
               <button
                 type="button"
                 className="btn-primary-action"
                 onClick={() => setFavoritesOpen(false)}
               >
-                Explorar Cardápio
+                Explorar CardÃ¡pio
               </button>
             </div>
           ) : (
@@ -116,3 +116,4 @@ export const FavoritesDrawer = () => {
     </div>
   );
 };
+

@@ -1,83 +1,58 @@
 import React from 'react';
 import { useRestaurant } from '../../context/RestaurantContext';
-import { formatPrice } from '../../utils/formatters';
-import { Badge } from '../common/Badge';
-import { Star, Heart, ArrowRight } from 'lucide-react';
+import { formatPrice, isValidPrice } from '../../utils/formatters';
+import { Star, Plus } from 'lucide-react';
+
+const displayPrice = (product) => {
+  if (product.sizes?.length) {
+    const validSizes = product.sizes.filter((size) => isValidPrice(size.price));
+    if (!validSizes.length) return 'Preço indisponível';
+    const minPrice = Math.min(...validSizes.map((size) => Number(size.price)));
+    return `a partir de ${formatPrice(minPrice)}`;
+  }
+  return formatPrice(product.price);
+};
 
 export const ProductCard = ({ product }) => {
-  const { setSelectedProduct, toggleFavorite, isFavorite } = useRestaurant();
-  const favorited = isFavorite(product.id);
+  const { setSelectedProduct, addToCart } = useRestaurant();
+  const hasReviews = product.reviewsCount > 0 && product.rating;
+  const hasSizes = product.sizes?.length > 0;
+
+  const handleQuickAdd = () => {
+    if (hasSizes) {
+      setSelectedProduct(product);
+      return;
+    }
+    addToCart({ product, quantity: 1 });
+  };
 
   return (
-    <article
-      className="product-card"
-      onClick={() => setSelectedProduct(product)}
-      role="button"
-      tabIndex={0}
-      onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          setSelectedProduct(product);
-        }
-      }}
-      aria-label={`Ver detalhes de ${product.name}`}
-    >
-      <div className="product-card-media">
-        <img
-          src={product.image}
-          alt={product.name}
-          className="product-card-img"
-          loading="lazy"
-        />
-
-        {product.badge && (
-          <div className="product-floating-badge">
-            <Badge text={product.badge} type="featured" />
+    <article className="product-card pizza-product-card">
+      <button type="button" className="product-card-main" onClick={() => setSelectedProduct(product)}>
+        <div className="product-card-media">
+          <img src={product.image} alt={product.name} className="product-card-img" loading="lazy" />
+          {product.badge && <span className="pizza-badge">{product.badge}</span>}
+        </div>
+        <div className="product-card-body">
+          <div className="product-header-row">
+            <h3 className="product-title">{product.name}</h3>
+            <span className="price-text">{displayPrice(product)}</span>
           </div>
-        )}
-
-        <button
-          type="button"
-          className={`favorite-btn ${favorited ? 'favorited' : ''}`}
-          onClick={(e) => {
-            e.stopPropagation();
-            toggleFavorite(product.id);
-          }}
-          aria-label={favorited ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}
-        >
-          <Heart size={16} fill={favorited ? 'currentColor' : 'none'} />
-        </button>
-      </div>
-
-      <div className="product-card-body">
-        <div className="product-header-row">
-          <h3 className="product-title">{product.name}</h3>
-        </div>
-
-        <p className="product-desc">{product.description}</p>
-
-        <div className="product-meta-row">
-          <div className="rating-pill">
-            <Star size={11} fill="currentColor" />
-            <span>{Number(product.rating).toFixed(1)}</span>
-            <span style={{ opacity: 0.75, fontWeight: 500 }}>({product.reviewsCount})</span>
+          <p className="product-desc">{product.description}</p>
+          <div className="product-meta-row">
+            {hasReviews ? (
+              <span className="rating-pill"><Star size={11} fill="currentColor" /> {Number(product.rating).toFixed(1)} ({product.reviewsCount})</span>
+            ) : (
+              <span className="empty-review-pill">Sem avaliacoes ainda</span>
+            )}
+            {hasSizes && <span>{product.sizes.length} tamanhos</span>}
+            {product.servings && <span>{product.servings}</span>}
           </div>
-
-          {product.servings && (
-            <>
-              <span style={{ opacity: 0.3 }}>•</span>
-              <span>{product.servings}</span>
-            </>
-          )}
         </div>
-
-        <div className="product-footer-row">
-          <span className="price-text">{formatPrice(product.price)}</span>
-          <span className="view-btn">
-            <span>Ver produto</span>
-            <ArrowRight size={13} />
-          </span>
-        </div>
-      </div>
+      </button>
+      <button type="button" className="quick-add-btn" onClick={handleQuickAdd} aria-label={`Adicionar ${product.name} ao carrinho`}>
+        <Plus size={18} />
+      </button>
     </article>
   );
 };

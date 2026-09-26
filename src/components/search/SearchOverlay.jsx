@@ -1,7 +1,16 @@
 import React, { useState, useMemo } from 'react';
 import { useRestaurant } from '../../context/RestaurantContext';
-import { formatPrice } from '../../utils/formatters';
+import { formatPrice, isValidPrice } from '../../utils/formatters';
 import { Search, X, Star, ArrowRight } from 'lucide-react';
+
+const displaySearchPrice = (product) => {
+  if (product.sizes?.length) {
+    const validSizes = product.sizes.filter((size) => isValidPrice(size.price));
+    if (!validSizes.length) return 'Preço indisponível';
+    return `a partir de ${formatPrice(Math.min(...validSizes.map((size) => Number(size.price))))}`;
+  }
+  return formatPrice(product.price);
+};
 
 export const SearchOverlay = () => {
   const { restaurant, searchOpen, setSearchOpen, setSelectedProduct } = useRestaurant();
@@ -30,7 +39,7 @@ export const SearchOverlay = () => {
           <input
             type="text"
             className="search-input-field"
-            placeholder="Buscar no cardápio (ex: calabresa, trufa, burger)..."
+            placeholder="Buscar no cardÃ¡pio (ex: calabresa, trufa, burger)..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             autoFocus
@@ -103,10 +112,10 @@ export const SearchOverlay = () => {
                   </h4>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '3px' }}>
                     <span style={{ fontSize: '0.75rem', color: 'var(--star-gold)', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '2px' }}>
-                      <Star size={11} fill="currentColor" /> {Number(prod.rating).toFixed(1)}
+                      {prod.reviewsCount > 0 && prod.rating ? <><Star size={11} fill="currentColor" /> {Number(prod.rating).toFixed(1)}</> : 'Sem avaliacoes'}
                     </span>
                     <span style={{ fontSize: '0.75rem', color: 'var(--accent-secondary)', fontWeight: 800 }}>
-                      {formatPrice(prod.price)}
+                      {displaySearchPrice(prod)}
                     </span>
                   </div>
                 </div>
@@ -119,3 +128,5 @@ export const SearchOverlay = () => {
     </div>
   );
 };
+
+

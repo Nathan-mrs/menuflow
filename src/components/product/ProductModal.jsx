@@ -1,361 +1,123 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useRestaurant } from '../../context/RestaurantContext';
-import { formatPrice, createWhatsAppOrderLink } from '../../utils/formatters';
-import { Badge } from '../common/Badge';
+import { formatPrice, isValidPrice, parsePrice } from '../../utils/formatters';
 import { RatingStars } from '../common/RatingStars';
-import { X, Heart, Star, CheckCircle, Plus, Minus, MessageCircle, MessageSquarePlus } from 'lucide-react';
+import { X, Plus, Minus, CheckCircle, ShoppingCart, Star } from 'lucide-react';
 
 export const ProductModal = () => {
-  const {
-    restaurant,
-    selectedProduct,
-    setSelectedProduct,
-    toggleFavorite,
-    isFavorite,
-    setReviewModalProduct,
-  } = useRestaurant();
+  const { selectedProduct, setSelectedProduct, addToCart } = useRestaurant();
+  const [quantity, setQuantity] = useState(1);
+  const [notes, setNotes] = useState('');
+  const [selectedSizeId, setSelectedSizeId] = useState('');
+  const [sizeError, setSizeError] = useState('');
+
+  const sizes = useMemo(() => selectedProduct?.sizes || [], [selectedProduct]);
+  const selectedSize = sizes.find((size) => size.id === selectedSizeId) || null;
+
+  useEffect(() => {
+    if (selectedProduct) {
+      setQuantity(1);
+      setNotes('');
+      setSelectedSizeId('');
+      setSizeError('');
+    }
+  }, [selectedProduct?.id]);
 
   if (!selectedProduct) return null;
 
-  const favorited = isFavorite(selectedProduct.id);
+  const hasSizes = sizes.length > 0;
+  const unitPrice = parsePrice(selectedSize ? selectedSize.price : selectedProduct.price);
+  const hasValidPrice = isValidPrice(unitPrice);
+  const hasReviews = selectedProduct.reviewsCount > 0 && selectedProduct.rating;
+  const totalPrice = hasValidPrice ? unitPrice * quantity : null;
 
-  // Customization state
-  const defaultSize =
-    selectedProduct.sizes && selectedProduct.sizes.length > 0
-      ? selectedProduct.sizes.find((s) => s.default) || selectedProduct.sizes[0]
-      : null;
-
-  const [selectedSize, setSelectedSize] = useState(defaultSize);
-  const [selectedAddons, setSelectedAddons] = useState([]);
-  const [quantity, setQuantity] = useState(1);
-  const [notes, setNotes] = useState('');
-
-  // Reset when modal opens for a new product
-  useEffect(() => {
-    setSelectedSize(
-      selectedProduct.sizes && selectedProduct.sizes.length > 0
-        ? selectedProduct.sizes.find((s) => s.default) || selectedProduct.sizes[0]
-        : null
-    );
-    setSelectedAddons([]);
-    setQuantity(1);
-    setNotes('');
-  }, [selectedProduct.id]);
-
-  // Calculate dynamic total price
-  const basePrice = selectedProduct.price;
-  const sizeOffset = selectedSize ? selectedSize.priceOffset || 0 : 0;
-  const addonsTotal = selectedAddons.reduce((acc, curr) => acc + (curr.price || 0), 0);
-  const unitPrice = basePrice + sizeOffset + addonsTotal;
-  const totalPrice = unitPrice * quantity;
-
-  // Toggle addons
-  const handleAddonToggle = (addon) => {
-    const exists = selectedAddons.some((a) => a.id === addon.id);
-    if (exists) {
-      setSelectedAddons(selectedAddons.filter((a) => a.id !== addon.id));
-    } else {
-      setSelectedAddons([...selectedAddons, addon]);
+  const handleAdd = () => {
+    if (hasSizes && !selectedSize) {
+      setSizeError('Escolha um tamanho para continuar.');
+      return;
     }
+    if (!isValidPrice(selectedSize ? selectedSize.price : selectedProduct.price)) {
+      setSizeError('Preco indisponivel para este item. Ajuste o cadastro antes de vender.');
+      return;
+    }
+    addToCart({ product: selectedProduct, size: selectedSize, quantity, notes: notes.trim() });
+    setSelectedProduct(null);
   };
 
-  // WhatsApp order link
-  const whatsAppLink = createWhatsAppOrderLink({
-    phone: restaurant.whatsapp || restaurant.phone,
-    restaurantName: restaurant.name,
-    product: selectedProduct,
-    selectedSize,
-    selectedAddons,
-    quantity,
-    notes,
-    totalPrice,
-  });
-
-  // Calculate rating distribution percentages
-  const dist = selectedProduct.ratingsDistribution || { 5: 100, 4: 10, 3: 2, 2: 1, 1: 0 };
-  const totalReviewsInDist = Object.values(dist).reduce((acc, val) => acc + val, 0) || 1;
-
   return (
-    <div
-      className="modal-backdrop"
-      onClick={() => setSelectedProduct(null)}
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="modal-product-title"
-    >
-      <div
-        className="modal-content-sheet animate-slide-up"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="modal-drag-handle"></div>
-
+    <div className="modal-backdrop" onClick={() => setSelectedProduct(null)} role="dialog" aria-modal="true">
+      <div className="modal-content-sheet animate-slide-up" onClick={(event) => event.stopPropagation()}>
         <div className="modal-scrollable-body">
-          {/* Media Header */}
           <div className="modal-media-header">
-            <img
-              src={selectedProduct.image}
-              alt={selectedProduct.name}
-              className="modal-media-img"
-            />
+            <img src={selectedProduct.image} alt={selectedProduct.name} className="modal-media-img" />
             <div className="modal-media-overlay"></div>
-
             <div className="modal-top-bar">
-              <button
-                type="button"
-                className="modal-close-btn"
-                onClick={() => setSelectedProduct(null)}
-                aria-label="Fechar detalhes do produto"
-              >
-                <X size={20} />
-              </button>
-
-              <button
-                type="button"
-                className={`favorite-btn ${favorited ? 'favorited' : ''}`}
-                onClick={() => toggleFavorite(selectedProduct.id)}
-                aria-label={favorited ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}
-              >
-                <Heart size={18} fill={favorited ? 'currentColor' : 'none'} />
-              </button>
+              <button type="button" className="modal-close-btn" onClick={() => setSelectedProduct(null)} aria-label="Fechar"><X size={20} /></button>
             </div>
           </div>
 
-          {/* Product Info Block */}
           <div className="modal-info-block">
-            {selectedProduct.badge && (
-              <div>
-                <Badge text={selectedProduct.badge} type="featured" />
-              </div>
-            )}
-
-            <h2 id="modal-product-title" className="modal-dish-title">
-              {selectedProduct.name}
-            </h2>
-
+            {selectedProduct.badge && <span className="pizza-badge inline-badge">{selectedProduct.badge}</span>}
+            <h2 className="modal-dish-title">{selectedProduct.name}</h2>
             <div className="modal-price-rating-row">
               <span className="modal-price">{formatPrice(unitPrice)}</span>
-              <div className="modal-rating-badge">
-                <Star size={15} fill="currentColor" />
-                <span>{Number(selectedProduct.rating).toFixed(1)}</span>
-                <span style={{ opacity: 0.65, fontSize: '0.78rem' }}>
-                  ({selectedProduct.reviewsCount} avaliações)
-                </span>
-              </div>
+              {hasReviews ? <div className="modal-rating-badge"><Star size={15} fill="currentColor" /> {Number(selectedProduct.rating).toFixed(1)} ({selectedProduct.reviewsCount})</div> : <span className="empty-review-pill">Ainda sem avaliacoes</span>}
             </div>
-
+            {!hasValidPrice && !hasSizes && <span className="form-error-text">Este produto nao pode ser adicionado enquanto estiver sem preco valido.</span>}
             <p className="modal-dish-desc">{selectedProduct.description}</p>
-
-            {/* Ingredients Chips */}
-            {selectedProduct.ingredients && selectedProduct.ingredients.length > 0 && (
-              <div style={{ marginTop: '4px' }}>
-                <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                  Ingredientes & Preparo:
-                </span>
-                <div className="ingredients-chips-row">
-                  {selectedProduct.ingredients.map((ing, idx) => (
-                    <span key={idx} className="ingredient-chip">
-                      {ing}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
+            {selectedProduct.ingredients?.length > 0 && <div className="ingredients-chips-row">{selectedProduct.ingredients.slice(0, 8).map((ingredient) => <span key={ingredient} className="ingredient-chip">{ingredient}</span>)}</div>}
           </div>
 
-          {/* Customization: Sizes */}
-          {selectedProduct.sizes && selectedProduct.sizes.length > 1 && (
+          {hasSizes && (
             <div className="customization-section">
-              <div className="customization-title-row">
-                <span className="customization-title">Escolha o tamanho:</span>
-                <span className="customization-badge">Obrigatório</span>
-              </div>
+              <span className="customization-title">Escolha o tamanho</span>
               <div className="options-list">
-                {selectedProduct.sizes.map((sizeOption, idx) => {
-                  const isSelected = selectedSize?.name === sizeOption.name;
+                {sizes.map((size) => {
+                  const disabled = !isValidPrice(size.price) || size.isAvailable === false;
                   return (
-                    <div
-                      key={idx}
-                      className={`radio-option-card ${isSelected ? 'selected' : ''}`}
-                      onClick={() => setSelectedSize(sizeOption)}
+                    <button
+                      key={size.id}
+                      type="button"
+                      className={`radio-option-card size-option-card ${selectedSizeId === size.id ? 'selected' : ''}`}
+                      onClick={() => { if (!disabled) { setSelectedSizeId(size.id); setSizeError(''); } }}
+                      disabled={disabled}
                     >
-                      <div className="option-left">
-                        <div className="custom-radio">
-                          {isSelected && <div className="custom-radio-inner"></div>}
-                        </div>
-                        <span className="option-name">{sizeOption.name}</span>
-                      </div>
-                      <span className="option-price">
-                        {sizeOption.priceOffset === 0
-                          ? 'Incluso'
-                          : `+ ${formatPrice(sizeOption.priceOffset)}`}
-                      </span>
-                    </div>
+                      <span className="option-name">{size.name}</span>
+                      <span className="option-price">{disabled ? 'Preço indisponível' : formatPrice(size.price)}</span>
+                    </button>
                   );
                 })}
               </div>
+              {sizeError && <span className="form-error-text">{sizeError}</span>}
             </div>
           )}
 
-          {/* Customization: Addons */}
-          {selectedProduct.addons && selectedProduct.addons.length > 0 && (
-            <div className="customization-section">
-              <div className="customization-title-row">
-                <span className="customization-title">Adicionais & Turbinar:</span>
-                <span className="customization-badge">Opcional</span>
-              </div>
-              <div className="options-list">
-                {selectedProduct.addons.map((addon) => {
-                  const isSelected = selectedAddons.some((a) => a.id === addon.id);
-                  return (
-                    <div
-                      key={addon.id}
-                      className={`checkbox-option-card ${isSelected ? 'selected' : ''}`}
-                      onClick={() => handleAddonToggle(addon)}
-                    >
-                      <div className="option-left">
-                        <div className="custom-checkbox">
-                          {isSelected && '✓'}
-                        </div>
-                        <span className="option-name">{addon.name}</span>
-                      </div>
-                      <span className="option-price">+ {formatPrice(addon.price)}</span>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-
-          {/* Special Notes */}
           <div className="customization-section">
-            <span className="customization-title" style={{ display: 'block', marginBottom: '8px' }}>
-              Alguma observação especial?
-            </span>
-            <textarea
-              className="notes-input-area"
-              placeholder="Ex: sem cebola, ponto da carne bem passado, molho à parte..."
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              maxLength={200}
-            ></textarea>
+            <span className="customization-title">Observacao para a pizzaria</span>
+            <textarea className="notes-input-area" placeholder="Ex: sem cebola, cortar em 8 pedacos..." value={notes} onChange={(event) => setNotes(event.target.value)} maxLength={180} />
           </div>
 
-          {/* REVIEWS SECTION */}
-          <div className="modal-reviews-section">
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px' }}>
-              <div>
-                <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--accent-secondary)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                  Avaliações Reais
-                </span>
-                <h3 style={{ fontFamily: 'var(--font-heading)', fontSize: '1.15rem', fontWeight: 800 }}>
-                  Quem já pediu, avaliou.
-                </h3>
-              </div>
-            </div>
-
-            {/* Score & Distribution Breakdown */}
-            <div className="reviews-summary-card">
-              <div className="score-big-box">
-                <span className="score-number">{Number(selectedProduct.rating).toFixed(1)}</span>
-                <div className="score-stars-row">
-                  <RatingStars rating={selectedProduct.rating} size={13} />
-                </div>
-                <span className="score-total-count">{selectedProduct.reviewsCount} notas</span>
-              </div>
-
-              <div className="bars-breakdown">
-                {[5, 4, 3, 2, 1].map((stars) => {
-                  const count = dist[stars] || 0;
-                  const pct = Math.round((count / totalReviewsInDist) * 100);
-                  return (
-                    <div key={stars} className="bar-row">
-                      <span style={{ width: '14px', textAlign: 'right' }}>{stars}★</span>
-                      <div className="bar-track">
-                        <div className="bar-fill" style={{ width: `${pct}%` }}></div>
-                      </div>
-                      <span style={{ width: '28px', textAlign: 'right', fontSize: '0.68rem' }}>{pct}%</span>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Add Review Trigger */}
-            <button
-              type="button"
-              className="add-review-trigger-btn"
-              onClick={() => setReviewModalProduct(selectedProduct)}
-            >
-              <MessageSquarePlus size={16} />
-              <span>Avaliar este prato</span>
-            </button>
-
-            {/* Reviews Feed */}
-            <div className="reviews-feed">
-              {selectedProduct.reviews && selectedProduct.reviews.length > 0 ? (
-                selectedProduct.reviews.map((rev) => (
-                  <div key={rev.id} className="review-item">
-                    <div className="review-item-header">
-                      <div className="review-author">
-                        <span>{rev.author}</span>
-                        {rev.verified && (
-                          <span className="verified-tag">
-                            <CheckCircle size={12} />
-                            Verificado
-                          </span>
-                        )}
-                      </div>
-                      <span className="review-date">{rev.date}</span>
-                    </div>
-
-                    <div style={{ marginBottom: '6px' }}>
-                      <RatingStars rating={rev.rating} size={11} />
-                    </div>
-
-                    <p className="review-comment-text">"{rev.comment}"</p>
+          <section className="modal-reviews-section">
+            <div className="reviews-title-row"><div><span className="section-tag">Avaliacoes do produto</span><h3 className="section-title small-title">Compra verificada, quando houver convite</h3></div></div>
+            {hasReviews ? (
+              <div className="reviews-feed">
+                {selectedProduct.reviews.map((review) => (
+                  <div key={review.id} className="review-item">
+                    <div className="review-item-header"><div className="review-author"><span>{review.author}</span>{review.verified && <span className="verified-tag"><CheckCircle size={12} /> Compra verificada</span>}</div><span className="review-date">{review.date}</span></div>
+                    <RatingStars rating={review.rating} size={12} />
+                    {review.comment && <p className="review-comment-text">"{review.comment}"</p>}
                   </div>
-                ))
-              ) : (
-                <div style={{ textAlign: 'center', padding: '16px', color: 'var(--text-muted)', fontSize: '0.85rem' }}>
-                  Seja o primeiro a avaliar este prato!
-                </div>
-              )}
-            </div>
-          </div>
+                ))}
+              </div>
+            ) : (
+              <div className="empty-reviews-card"><strong>Nenhuma avaliacao publicada ainda.</strong><span>Nesta demonstracao, avaliacoes aparecem apenas depois de convite valido gerado pela pizzaria.</span></div>
+            )}
+          </section>
         </div>
 
-        {/* Fixed Action Bottom Bar */}
         <div className="modal-fixed-bottom-bar">
-          <div className="quantity-control">
-            <button
-              type="button"
-              className="qty-btn"
-              onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-              aria-label="Diminuir quantidade"
-            >
-              <Minus size={14} />
-            </button>
-            <span className="qty-value">{quantity}</span>
-            <button
-              type="button"
-              className="qty-btn"
-              onClick={() => setQuantity((q) => q + 1)}
-              aria-label="Aumentar quantidade"
-            >
-              <Plus size={14} />
-            </button>
-          </div>
-
-          <a
-            href={whatsAppLink}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="whatsapp-cta-btn"
-            id="btn-pedir-whatsapp"
-          >
-            <MessageCircle size={20} />
-            <span>Pedir pelo WhatsApp • {formatPrice(totalPrice)}</span>
-          </a>
+          <div className="quantity-control"><button type="button" className="qty-btn" onClick={() => setQuantity((value) => Math.max(1, value - 1))}><Minus size={14} /></button><span className="qty-value">{quantity}</span><button type="button" className="qty-btn" onClick={() => setQuantity((value) => value + 1)}><Plus size={14} /></button></div>
+          <button type="button" className="whatsapp-cta-btn" onClick={handleAdd}><ShoppingCart size={20} /> Adicionar - {formatPrice(totalPrice)}</button>
         </div>
       </div>
     </div>

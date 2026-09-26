@@ -1,301 +1,127 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { RESTAURANTS_DATA } from '../data/restaurants';
-import confetti from 'canvas-confetti';
+import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
+import { DEMO_RESTAURANT } from '../data/demoRestaurant';
+import { isSupabaseConfigured } from '../lib/supabaseClient';
+import { loadPublicRestaurant } from '../services/menuRepository';
+import { isValidPrice, parsePrice } from '../utils/formatters';
 
 const RestaurantContext = createContext();
 
 export const RestaurantProvider = ({ children }) => {
-  // Multi-tenant state (URL slug or selected demo tenant)
-  const [tenantsData, setTenantsData] = useState(() => {
-    const saved = localStorage.getItem('menuflow_tenants');
-    return saved ? JSON.parse(saved) : RESTAURANTS_DATA;
-  });
-
-  const [currentTenantId, setCurrentTenantId] = useState('bola-pizza');
-  const restaurant = tenantsData[currentTenantId] || tenantsData['bola-pizza'];
-
-  // Global UI states
-  const [activeCategory, setActiveCategory] = useState(restaurant.categories[0]?.id || 'pizzas');
+  const [remoteRestaurant, setRemoteRestaurant] = useState(null);
+  const [menuLoading, setMenuLoading] = useState(isSupabaseConfigured);
+  const [menuError, setMenuError] = useState(null);
+  const [activeCategory, setActiveCategory] = useState('pizzas');
   const [selectedProduct, setSelectedProduct] = useState(null);
-  const [reviewModalProduct, setReviewModalProduct] = useState(null);
   const [searchOpen, setSearchOpen] = useState(false);
   const [infoOpen, setInfoOpen] = useState(false);
   const [qrCodeOpen, setQrCodeOpen] = useState(false);
-  const [adminOpen, setAdminOpen] = useState(false);
-  const [favoritesOpen, setFavoritesOpen] = useState(false);
   const [toast, setToast] = useState(null);
+  const [cartOpen, setCartOpen] = useState(false);
+  const [cartItems, setCartItems] = useState([]);
 
-  // Favorites state persisted in localStorage
-  const [favorites, setFavorites] = useState(() => {
+  const fallbackRestaurant = useMemo(() => DEMO_RESTAURANT, []);
+  const restaurant = remoteRestaurant || fallbackRestaurant;
+
+  const refreshPublicMenu = async () => {
+    if (!isSupabaseConfigured) {
+      setMenuLoading(false);
+      return;
+    }
+
+    setMenuLoading(true);
+    setMenuError(null);
     try {
-      const saved = localStorage.getItem(`menuflow_favs_${currentTenantId}`);
-      return saved ? JSON.parse(saved) : [];
-    } catch {
-      return [];
+      const loadedRestaurant = await loadPublicRestaurant();
+      if (loadedRestaurant) setRemoteRestaurant(loadedRestaurant);
+    } catch (error) {
+      console.error('Supabase public menu load error:', error);
+      setMenuError('Cardapio demonstrativo carregado. A consulta ao Supabase falhou; verifique se as migracoes foram aplicadas.');
+    } finally {
+      setMenuLoading(false);
     }
-  });
-
-  // Save changes to localStorage
-  useEffect(() => {
-    try {
-      localStorage.setItem('menuflow_tenants', JSON.stringify(tenantsData));
-    } catch (e) {
-      console.warn('LocalStorage error:', e);
-    }
-  }, [tenantsData]);
+  };
 
   useEffect(() => {
-    try {
-      localStorage.setItem(`menuflow_favs_${currentTenantId}`, JSON.stringify(favorites));
-    } catch (e) {
-      console.warn('LocalStorage error:', e);
-    }
-  }, [favorites, currentTenantId]);
+    refreshPublicMenu();
+  }, []);
 
-  // Sync category if tenant changes
   useEffect(() => {
-    if (restaurant.categories && restaurant.categories.length > 0) {
-      setActiveCategory(restaurant.categories[0].id);
-    }
-  }, [currentTenantId]);
+    if (restaurant.categories?.length) setActiveCategory(restaurant.categories[0].id);
+  }, [restaurant.id]);
 
   const showToast = (message, type = 'success') => {
     setToast({ id: Date.now(), message, type });
-    setTimeout(() => {
-      setToast(null);
-    }, 3200);
+    setTimeout(() => setToast(null), 3200);
   };
 
-  const toggleFavorite = (productId) => {
-    const exists = favorites.includes(productId);
-    let updated;
-    if (exists) {
-      updated = favorites.filter((id) => id !== productId);
-      showToast('Item removido dos favoritos');
-    } else {
-      updated = [...favorites, productId];
-      showToast('Adicionado aos seus favoritos! ❤️');
-    }
-    setFavorites(updated);
-  };
-
-  const isFavorite = (productId) => favorites.includes(productId);
-
-  // Submit Review Flow with Confetti
-  const submitReview = (productId, { author, rating, comment, tags }) => {
-    setTenantsData((prev) => {
-      const updatedTenant = { ...prev[currentTenantId] };
-      const updatedProducts = updatedTenant.products.map((prod) => {
-        if (prod.id === productId) {
-          const newReview = {
-            id: `r-${Date.now()}`,
-            author: author.trim() || 'Cliente Verificado',
-            rating: Number(rating) || 5,
-            comment: comment.trim(),
-            date: 'Agora mesmo',
-            verified: true,
-            tags: tags || [],
-          };
-
-          const newReviews = [newReview, ...(prod.reviews || [])];
-          const newCount = (prod.reviewsCount || 0) + 1;
-          
-          // Update distribution
-          const dist = { ...(prod.ratingsDistribution || { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 }) };
-          dist[rating] = (dist[rating] || 0) + 1;
-
-          // Calculate new average
-          const totalPoints = newReviews.reduce((acc, r) => acc + (r.rating || 5), 0);
-          const newAvg = Number((totalPoints / newReviews.length).toFixed(1));
-
-          return {
-            ...prod,
-            rating: newAvg,
-            reviewsCount: newCount,
-            ratingsDistribution: dist,
-            reviews: newReviews,
-          };
-        }
-        return prod;
-      });
-
-      updatedTenant.products = updatedProducts;
-      return {
-        ...prev,
-        [currentTenantId]: updatedTenant,
-      };
-    });
-
-    // Also update currently open selectedProduct if it's the one being reviewed
-    if (selectedProduct && selectedProduct.id === productId) {
-      setSelectedProduct((prev) => {
-        const newReview = {
-          id: `r-${Date.now()}`,
-          author: author.trim() || 'Cliente Verificado',
-          rating: Number(rating) || 5,
-          comment: comment.trim(),
-          date: 'Agora mesmo',
-          verified: true,
-          tags: tags || [],
-        };
-        const newReviews = [newReview, ...(prev.reviews || [])];
-        const newCount = (prev.reviewsCount || 0) + 1;
-        const dist = { ...(prev.ratingsDistribution || { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 }) };
-        dist[rating] = (dist[rating] || 0) + 1;
-        const totalPoints = newReviews.reduce((acc, r) => acc + (r.rating || 5), 0);
-        return {
-          ...prev,
-          rating: Number((totalPoints / newReviews.length).toFixed(1)),
-          reviewsCount: newCount,
-          ratingsDistribution: dist,
-          reviews: newReviews,
-        };
-      });
+  const addToCart = ({ product, quantity = 1, notes = '', size = null }) => {
+    if (product.sizes?.length && !size) {
+      setSelectedProduct(product);
+      showToast('Escolha o tamanho antes de adicionar.', 'warning');
+      return;
     }
 
-    // Trigger celebratory confetti
-    try {
-      confetti({
-        particleCount: 60,
-        spread: 60,
-        origin: { y: 0.7 },
-        colors: ['#FF8A1F', '#FFB347', '#FFFFFF', '#4CAF50'],
-      });
-    } catch (e) {
-      console.warn('Confetti error:', e);
+    const unitPrice = parsePrice(size ? size.price : product.price);
+    if (!isValidPrice(unitPrice)) {
+      setSelectedProduct(product);
+      showToast('Preco indisponivel para este item. Ajuste o cadastro antes de vender.', 'error');
+      return;
     }
 
-    showToast('Obrigado por compartilhar sua experiência! ❤️');
-    setReviewModalProduct(null);
-  };
-
-  // Admin capabilities
-  const addProduct = (newProduct) => {
-    setTenantsData((prev) => {
-      const updatedTenant = { ...prev[currentTenantId] };
-      const productWithId = {
-        ...newProduct,
-        id: `prod-${Date.now()}`,
-        rating: 5.0,
-        reviewsCount: 1,
-        ratingsDistribution: { 5: 1, 4: 0, 3: 0, 2: 0, 1: 0 },
-        reviews: [
-          {
-            id: `r-init-${Date.now()}`,
-            author: 'MenuFlow Curadoria',
-            rating: 5,
-            comment: 'Lançamento exclusivo do cardápio!',
-            date: 'Hoje',
-            verified: true,
-          },
-        ],
-      };
-      updatedTenant.products = [productWithId, ...updatedTenant.products];
-      return { ...prev, [currentTenantId]: updatedTenant };
-    });
-    showToast('Produto adicionado ao cardápio!');
-  };
-
-  const updateProduct = (productId, updatedFields) => {
-    setTenantsData((prev) => {
-      const updatedTenant = { ...prev[currentTenantId] };
-      updatedTenant.products = updatedTenant.products.map((p) =>
-        p.id === productId ? { ...p, ...updatedFields } : p
+    setCartItems((current) => {
+      const existingIndex = current.findIndex(
+        (item) => item.product.id === product.id && item.notes === notes && (item.size?.id || '') === (size?.id || '')
       );
-      return { ...prev, [currentTenantId]: updatedTenant };
+      if (existingIndex >= 0) {
+        return current.map((item, index) =>
+          index === existingIndex ? { ...item, quantity: item.quantity + quantity } : item
+        );
+      }
+      return [...current, { id: `${product.id}-${size?.id || 'single'}-${Date.now()}`, product, size, quantity, notes, unitPrice }];
     });
-    showToast('Produto atualizado com sucesso!');
+    setCartOpen(true);
+    showToast('Item adicionado ao carrinho');
   };
 
-  const deleteProduct = (productId) => {
-    setTenantsData((prev) => {
-      const updatedTenant = { ...prev[currentTenantId] };
-      updatedTenant.products = updatedTenant.products.filter((p) => p.id !== productId);
-      return { ...prev, [currentTenantId]: updatedTenant };
-    });
-    showToast('Produto removido do cardápio.');
+  const updateCartItem = (itemId, quantity) => {
+    if (quantity <= 0) {
+      setCartItems((current) => current.filter((item) => item.id !== itemId));
+      return;
+    }
+    setCartItems((current) => current.map((item) => (item.id === itemId ? { ...item, quantity } : item)));
   };
 
-  const toggleProductStatus = (productId) => {
-    setTenantsData((prev) => {
-      const updatedTenant = { ...prev[currentTenantId] };
-      updatedTenant.products = updatedTenant.products.map((p) => {
-        if (p.id === productId) {
-          const newStatus = p.status === 'paused' ? 'active' : 'paused';
-          showToast(`Produto ${newStatus === 'active' ? 'ativado' : 'pausado'}`);
-          return { ...p, status: newStatus };
-        }
-        return p;
-      });
-      return { ...prev, [currentTenantId]: updatedTenant };
-    });
-  };
-
-  const hideReview = (productId, reviewId) => {
-    setTenantsData((prev) => {
-      const updatedTenant = { ...prev[currentTenantId] };
-      updatedTenant.products = updatedTenant.products.map((p) => {
-        if (p.id === productId) {
-          return {
-            ...p,
-            reviews: p.reviews.filter((r) => r.id !== reviewId),
-          };
-        }
-        return p;
-      });
-      return { ...prev, [currentTenantId]: updatedTenant };
-    });
-    showToast('Avaliação moderada com sucesso.');
-  };
-
-  const updateRestaurantSettings = (newSettings) => {
-    setTenantsData((prev) => {
-      return {
-        ...prev,
-        [currentTenantId]: {
-          ...prev[currentTenantId],
-          ...newSettings,
-        },
-      };
-    });
-    showToast('Configurações do restaurante salvas!');
-  };
+  const clearCart = () => setCartItems([]);
+  const cartTotal = cartItems.reduce((sum, item) => sum + item.unitPrice * item.quantity, 0);
+  const cartCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
   return (
     <RestaurantContext.Provider
       value={{
-        currentTenantId,
-        setCurrentTenantId,
-        tenantsData,
         restaurant,
+        menuLoading,
+        menuError,
+        refreshPublicMenu,
         activeCategory,
         setActiveCategory,
         selectedProduct,
         setSelectedProduct,
-        reviewModalProduct,
-        setReviewModalProduct,
         searchOpen,
         setSearchOpen,
         infoOpen,
         setInfoOpen,
         qrCodeOpen,
         setQrCodeOpen,
-        adminOpen,
-        setAdminOpen,
-        favoritesOpen,
-        setFavoritesOpen,
-        favorites,
-        toggleFavorite,
-        isFavorite,
         toast,
         showToast,
-        submitReview,
-        addProduct,
-        updateProduct,
-        deleteProduct,
-        toggleProductStatus,
-        hideReview,
-        updateRestaurantSettings,
+        cartItems,
+        cartOpen,
+        setCartOpen,
+        addToCart,
+        updateCartItem,
+        clearCart,
+        cartTotal,
+        cartCount,
       }}
     >
       {children}
@@ -305,8 +131,6 @@ export const RestaurantProvider = ({ children }) => {
 
 export const useRestaurant = () => {
   const context = useContext(RestaurantContext);
-  if (!context) {
-    throw new Error('useRestaurant must be used within a RestaurantProvider');
-  }
+  if (!context) throw new Error('useRestaurant must be used within a RestaurantProvider');
   return context;
 };

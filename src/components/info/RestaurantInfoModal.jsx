@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import { useRestaurant } from '../../context/RestaurantContext';
 import { X, MapPin, Clock, Phone, Navigation, CreditCard, ShieldCheck } from 'lucide-react';
 
@@ -46,7 +46,7 @@ export const RestaurantInfoModal = () => {
                 {restaurant.name}
               </h3>
               <span style={{ fontSize: '0.72rem', color: 'var(--text-secondary)' }}>
-                Informações & Contato
+                InformaÃ§Ãµes & Contato
               </span>
             </div>
           </div>
@@ -54,7 +54,7 @@ export const RestaurantInfoModal = () => {
             type="button"
             className="icon-btn"
             onClick={() => setInfoOpen(false)}
-            aria-label="Fechar informações"
+            aria-label="Fechar informaÃ§Ãµes"
           >
             <X size={18} />
           </button>
@@ -78,7 +78,7 @@ export const RestaurantInfoModal = () => {
             </div>
             <div>
               <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                Horário de Funcionamento
+                HorÃ¡rio de Funcionamento
               </span>
               <p style={{ fontSize: '0.88rem', fontWeight: 600, color: 'var(--text-primary)', marginTop: '2px' }}>
                 {restaurant.openingHours}
@@ -96,7 +96,7 @@ export const RestaurantInfoModal = () => {
             </div>
             <div style={{ flex: 1 }}>
               <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                Endereço
+                EndereÃ§o
               </span>
               <p style={{ fontSize: '0.88rem', fontWeight: 600, color: 'var(--text-primary)', marginTop: '2px' }}>
                 {restaurant.address}
@@ -154,7 +154,7 @@ export const RestaurantInfoModal = () => {
               </span>
             </div>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
-              {['Pix (Chave Automática)', 'Cartão de Crédito', 'Cartão de Débito', 'VR / Alelo / Sodexo', 'Dinheiro com Troco'].map((pay) => (
+              {['Pix (Chave AutomÃ¡tica)', 'CartÃ£o de CrÃ©dito', 'CartÃ£o de DÃ©bito', 'VR / Alelo / Sodexo', 'Dinheiro com Troco'].map((pay) => (
                 <span key={pay} className="ingredient-chip">
                   {pay}
                 </span>
@@ -166,7 +166,7 @@ export const RestaurantInfoModal = () => {
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'rgba(255,255,255,0.02)', padding: '12px', borderRadius: 'var(--radius-md)', border: '1px solid rgba(255,255,255,0.06)' }}>
             <ShieldCheck size={20} color="#34D399" />
             <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-              Cardápio oficial operado sob tecnologia <strong style={{ color: '#FFFFFF' }}>MenuFlow</strong>. Avaliações 100% autênticas de clientes.
+              Cardapio demonstrativo operado sob tecnologia <strong style={{ color: '#FFFFFF' }}>MenuFlow</strong>. Avaliacoes aparecem quando coletadas por convite verificado.
             </span>
           </div>
         </div>
@@ -174,3 +174,4 @@ export const RestaurantInfoModal = () => {
     </div>
   );
 };
+
