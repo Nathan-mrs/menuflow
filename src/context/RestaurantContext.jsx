@@ -1,4 +1,4 @@
-﻿import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
+import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import { DEMO_RESTAURANT } from '../data/demoRestaurant';
 import { isSupabaseConfigured } from '../lib/supabaseClient';
 import { loadPublicRestaurant } from '../services/menuRepository';
@@ -58,12 +58,12 @@ export const RestaurantProvider = ({ children }) => {
     setMenuError(null);
     try {
       const loadedRestaurant = await loadPublicRestaurant();
-      if (!loadedRestaurant) throw new Error('Restaurante nao encontrado para o slug configurado.');
+      if (!loadedRestaurant) throw new Error('Restaurante não encontrado para o slug configurado.');
       setRemoteRestaurant(loadedRestaurant);
     } catch (error) {
       console.error('Supabase public menu load error:', error);
       setRemoteRestaurant(null);
-      setMenuError(error.message || 'Nao foi possivel carregar o cardapio desta pizzaria.');
+      setMenuError(error.message || 'Não foi possível carregar o cardápio desta pizzaria.');
     } finally {
       setMenuLoading(false);
     }
@@ -103,7 +103,7 @@ export const RestaurantProvider = ({ children }) => {
     const unitPrice = parsePrice(explicitUnitPrice ?? (size ? size.price : product.price));
     if (!isValidPrice(unitPrice)) {
       setSelectedProduct(product);
-      showToast('Preco indisponivel para este item. Ajuste o cadastro antes de vender.', 'error');
+      showToast('Preço indisponível para este item. Ajuste o cadastro antes de vender.', 'error');
       return;
     }
 

@@ -1,4 +1,4 @@
-﻿// Formatting and WhatsApp message helpers for MenuFlow
+// Formatting and WhatsApp message helpers for MenuFlow
 
 export const parsePrice = (value) => {
   if (value === null || value === undefined || value === '') return null;
@@ -58,7 +58,7 @@ export const createCartWhatsAppOrderLink = ({ phone, restaurantName, items = [],
   if (items.some((item) => !isValidPrice(item.unitPrice) || !Number.isFinite(item.quantity) || item.quantity <= 0)) return '';
 
   const lines = [];
-  lines.push(`Ola, ${restaurantName || 'pizzaria'}!`);
+  lines.push(`Olá, ${restaurantName || 'pizzaria'}!`);
   lines.push('Gostaria de confirmar este pedido:');
   lines.push('');
 
@@ -66,13 +66,13 @@ export const createCartWhatsAppOrderLink = ({ phone, restaurantName, items = [],
     const subtotal = item.unitPrice * item.quantity;
     lines.push(`${item.quantity}x ${item.product.name} - ${formatPrice(subtotal)}`);
     describeCartItem(item).forEach((line) => lines.push(`- ${line}`));
-    lines.push(`Preco unitario: ${formatPrice(item.unitPrice)}`);
+    lines.push(`Preço unitário: ${formatPrice(item.unitPrice)}`);
     if (item.notes) lines.push(`Obs: ${item.notes}`);
     lines.push('');
   });
 
   lines.push(`Valor estimado: ${formatPrice(total)}`);
-  lines.push('O pedido ainda nao esta confirmado pelo site. Por favor, confirme disponibilidade, endereco, taxa de entrega e forma de pagamento por aqui.');
+  lines.push('O pedido ainda não está confirmado pelo site. Por favor, confirme disponibilidade, endereço, taxa de entrega e forma de pagamento por aqui.');
 
   return `https://api.whatsapp.com/send?phone=${cleanPhone}&text=${encodeURIComponent(lines.join('\n'))}`;
 };

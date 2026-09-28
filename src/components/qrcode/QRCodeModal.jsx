@@ -1,4 +1,4 @@
-﻿import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useRestaurant } from '../../context/RestaurantContext';
 import { copyToClipboard, getPublicMenuUrl } from '../../utils/formatters';
 import { X, Download, Copy, Check, QrCode } from 'lucide-react';
@@ -19,7 +19,7 @@ export const QRCodeModal = () => {
     const success = await copyToClipboard(menuUrl);
     if (success) {
       setCopied(true);
-      showToast('Link do cardapio copiado.');
+      showToast('Link do cardápio copiado.');
       setTimeout(() => setCopied(false), 2000);
     }
   };
@@ -29,7 +29,7 @@ export const QRCodeModal = () => {
       <div className="modal-content-sheet animate-slide-up qr-modal-sheet" onClick={(event) => event.stopPropagation()}>
         <div className="modal-drag-handle"></div>
         <div className="qr-modal-header">
-          <div className="qr-title-row"><QrCode size={19} color="var(--accent-secondary)" /><h3>QR Code do cardapio</h3></div>
+          <div className="qr-title-row"><QrCode size={19} color="var(--accent-secondary)" /><h3>QR Code do cardápio</h3></div>
           <button type="button" className="icon-btn" onClick={() => setQrCodeOpen(false)} aria-label="Fechar QR Code"><X size={18} /></button>
         </div>
 
@@ -37,18 +37,18 @@ export const QRCodeModal = () => {
           {!menuUrl ? (
             <div className="empty-reviews-card qr-empty-card">
               <strong>URL publica nao configurada.</strong>
-              <span>Defina a URL publica do cardapio no admin antes de gerar o QR para impressao. URLs localhost nao sao aceitas.</span>
+              <span>Defina a URL publica do cardápio no admin antes de gerar o QR para impressao. URLs localhost nao sao aceitas.</span>
             </div>
           ) : (
             <>
               <p className="qr-helper-text">Use este QR em impressos, mesas ou redes sociais. Ele aponta para a URL publica configurada para {restaurant.name}.</p>
               <div className="qr-print-card">
                 <div className="qr-print-brand"><span>{restaurant.logo || restaurant.name?.slice(0, 2)}</span><strong>{restaurant.name}</strong></div>
-                <img className="qr-image" src={imageUrl} alt={`QR Code do cardapio de ${restaurant.name}`} />
+                <img className="qr-image" src={imageUrl} alt={`QR Code do cardápio de ${restaurant.name}`} />
                 <div className="qr-url-label">{menuUrl}</div>
               </div>
               <div className="qr-actions-row">
-                <a className="btn-primary-action" href={imageUrl} download={`MenuFlow-QRCode-${restaurant.slug || 'cardapio'}.png`} target="_blank" rel="noopener noreferrer">
+                <a className="btn-primary-action" href={imageUrl} download={`MenuFlow-QRCode-${restaurant.slug || 'cardápio'}.png`} target="_blank" rel="noopener noreferrer">
                   <Download size={16} /> Baixar PNG
                 </a>
                 <button type="button" className="btn-secondary-action" onClick={handleCopyLink}>

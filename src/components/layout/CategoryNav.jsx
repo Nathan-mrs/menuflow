@@ -27,7 +27,6 @@ export const CategoryNav = () => {
               className={`category-pill ${isActive ? 'active' : ''}`}
               onClick={() => handleCategoryClick(cat.id)}
             >
-              <span className="category-icon">{cat.icon}</span>
               <span>{cat.name}</span>
             </button>
           );

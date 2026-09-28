@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import { useRestaurant } from '../../context/RestaurantContext';
 import { createCartWhatsAppOrderLink, formatPrice } from '../../utils/formatters';
 import { Minus, Plus, Send, Trash2, X } from 'lucide-react';
@@ -47,7 +47,7 @@ export const CartDrawer = () => {
 
         <div className="cart-footer">
           <div className="cart-total-row"><span>Valor estimado</span><strong>{formatPrice(cartTotal)}</strong></div>
-          <p>O pedido nao e confirmado pelo site. A pizzaria confirma disponibilidade, endereco, taxa de entrega e forma de pagamento na conversa.</p>
+          <p>O pedido não é confirmado pelo site. A pizzaria confirma disponibilidade, endereço, taxa de entrega e forma de pagamento na conversa.</p>
           {canCheckout ? <a className="whatsapp-cta-btn" href={whatsappLink} target="_blank" rel="noopener noreferrer"><Send size={18} /> Finalizar no WhatsApp</a> : <button className="whatsapp-cta-btn disabled" type="button" disabled>Configure o WhatsApp da pizzaria</button>}
           {cartItems.length > 0 && <button className="clear-cart-btn" type="button" onClick={clearCart}><Trash2 size={14} /> Limpar carrinho</button>}
         </div>

@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import { useRestaurant } from '../../context/RestaurantContext';
 import { formatPrice, isValidPrice } from '../../utils/formatters';
 import { Star, Plus, Heart } from 'lucide-react';
@@ -6,7 +6,7 @@ import { Star, Plus, Heart } from 'lucide-react';
 const displayPrice = (product) => {
   if (product.sizes?.length) {
     const validSizes = product.sizes.filter((size) => isValidPrice(size.price));
-    if (!validSizes.length) return 'Preco indisponivel';
+    if (!validSizes.length) return 'Preço indisponível';
     const minPrice = Math.min(...validSizes.map((size) => Number(size.price)));
     return `a partir de ${formatPrice(minPrice)}`;
   }
@@ -44,7 +44,7 @@ export const ProductCard = ({ product }) => {
             {hasReviews ? (
               <span className="rating-pill"><Star size={11} fill="currentColor" /> {Number(product.rating).toFixed(1)} ({product.reviewsCount})</span>
             ) : (
-              <span className="empty-review-pill">Sem avaliacoes ainda</span>
+              <span className="empty-review-pill">Sem avaliações ainda</span>
             )}
             {hasSizes && <span>{product.sizes.length} tamanhos</span>}
             {product.servings && <span>{product.servings}</span>}

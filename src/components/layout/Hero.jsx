@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import { useRestaurant } from '../../context/RestaurantContext';
 
 export const Hero = () => {
@@ -11,7 +11,7 @@ export const Hero = () => {
         <div className="hero-overlay"></div>
       </div>
       <div className="hero-content">
-        <span className="hero-subtitle">{restaurant.heroSubtitle || 'Demonstracao de cardapio digital'}</span>
+        <span className="hero-subtitle">{restaurant.heroSubtitle || 'Demonstração de cardápio digital'}</span>
         <h2 className="hero-title">{restaurant.slogan || 'Pizzas artesanais, fotos reais e pedido direto pelo WhatsApp.'}</h2>
       </div>
     </section>

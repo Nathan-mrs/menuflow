@@ -6,7 +6,7 @@ import { Search, X, Star, ArrowRight } from 'lucide-react';
 const displaySearchPrice = (product) => {
   if (product.sizes?.length) {
     const validSizes = product.sizes.filter((size) => isValidPrice(size.price));
-    if (!validSizes.length) return 'Preco indisponivel';
+    if (!validSizes.length) return 'Preço indisponível';
     return `a partir de ${formatPrice(Math.min(...validSizes.map((size) => Number(size.price))))}`;
   }
   return formatPrice(product.price);
@@ -38,7 +38,7 @@ export const SearchOverlay = () => {
           <input
             type="text"
             className="search-input-field"
-            placeholder="Buscar no cardapio (ex: calabresa, Catupiry, refrigerante)..."
+            placeholder="Buscar no cardápio (ex: calabresa, Catupiry, refrigerante)..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             autoFocus
@@ -85,7 +85,7 @@ export const SearchOverlay = () => {
                   <h4 style={{ fontSize: '0.92rem', fontWeight: 700, color: 'var(--text-primary)' }}>{prod.name}</h4>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '3px' }}>
                     <span style={{ fontSize: '0.75rem', color: 'var(--star-gold)', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '2px' }}>
-                      {prod.reviewsCount > 0 && prod.rating ? <><Star size={11} fill="currentColor" /> {Number(prod.rating).toFixed(1)}</> : 'Sem avaliacoes'}
+                      {prod.reviewsCount > 0 && prod.rating ? <><Star size={11} fill="currentColor" /> {Number(prod.rating).toFixed(1)}</> : 'Sem avaliações'}
                     </span>
                     <span style={{ fontSize: '0.75rem', color: 'var(--accent-secondary)', fontWeight: 800 }}>{displaySearchPrice(prod)}</span>
                   </div>

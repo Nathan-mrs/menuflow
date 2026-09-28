@@ -6,7 +6,7 @@ import { X, Heart, Star, Trash2, Pizza } from 'lucide-react';
 const displayFavoritePrice = (product) => {
   if (product.sizes?.length) {
     const validSizes = product.sizes.filter((size) => isValidPrice(size.price));
-    if (!validSizes.length) return 'Preco indisponivel';
+    if (!validSizes.length) return 'Preço indisponível';
     return `a partir de ${formatPrice(Math.min(...validSizes.map((size) => Number(size.price))))}`;
   }
   return formatPrice(product.price);
@@ -33,7 +33,7 @@ export const FavoritesDrawer = () => {
               <div className="favorites-empty-icon"><Pizza size={28} /></div>
               <h4>Nenhum favorito ainda</h4>
               <p>Toque no coracao de uma pizza ou produto para guardar seus preferidos aqui.</p>
-              <button type="button" className="btn-primary-action" onClick={() => setFavoritesOpen(false)}>Explorar cardapio</button>
+              <button type="button" className="btn-primary-action" onClick={() => setFavoritesOpen(false)}>Explorar cardápio</button>
             </div>
           ) : (
             favoritedProducts.map((product) => (
@@ -42,7 +42,7 @@ export const FavoritesDrawer = () => {
                 <div className="search-result-info">
                   <h4>{product.name}</h4>
                   <div className="favorite-meta-row">
-                    <span>{product.reviewsCount > 0 && product.rating ? <><Star size={11} fill="currentColor" /> {Number(product.rating).toFixed(1)}</> : 'Sem avaliacoes'}</span>
+                    <span>{product.reviewsCount > 0 && product.rating ? <><Star size={11} fill="currentColor" /> {Number(product.rating).toFixed(1)}</> : 'Sem avaliações'}</span>
                     <strong>{displayFavoritePrice(product)}</strong>
                   </div>
                 </div>
