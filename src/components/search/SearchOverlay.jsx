@@ -38,7 +38,7 @@ export const SearchOverlay = () => {
           <input
             type="text"
             className="search-input-field"
-            placeholder="Buscar no cardápio (ex: calabresa, Catupiry, refrigerante)..."
+            placeholder="Buscar no cardápio (ex: pizza, hambúrguer, batata, cachorro-quente)..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             autoFocus
@@ -54,7 +54,7 @@ export const SearchOverlay = () => {
               Termos mais buscados:
             </span>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '8px' }}>
-              {['Calabresa', 'Catupiry', 'Margherita', 'Frango', 'Batata', 'Refrigerante'].map((tag) => (
+              {['Pizza', 'Hambúrguer', 'Batata frita', 'Cachorro-quente', 'Lanches'].map((tag) => (
                 <button key={tag} type="button" onClick={() => setQuery(tag)} className="search-suggestion-chip">
                   {tag}
                 </button>

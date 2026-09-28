@@ -2245,3 +2245,214 @@
     border-right: 1px solid rgba(255, 255, 255, 0.08);
   }
 }
+
+/* Fulfillment controls for proposal cart */
+.badge-status.closed {
+  color: #fecaca;
+  border-color: rgba(248, 113, 113, 0.28);
+  background: rgba(248, 113, 113, 0.1);
+}
+
+.fulfillment-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.fulfillment-title {
+  color: var(--text-primary);
+  font-size: 0.82rem;
+  font-weight: 900;
+}
+
+.fulfillment-options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.fulfillment-option {
+  justify-content: center;
+  font-weight: 800;
+}
+
+.delivery-address-grid {
+  display: grid;
+  grid-template-columns: 1fr 0.65fr;
+  gap: 8px;
+}
+
+.delivery-address-grid .form-input:nth-child(3),
+.delivery-address-grid .form-input:nth-child(4),
+.delivery-address-grid small {
+  grid-column: 1 / -1;
+}
+
+.delivery-address-grid small {
+  color: var(--text-muted);
+  font-size: 0.74rem;
+  line-height: 1.35;
+}
+
+@media (max-width: 430px) {
+  .delivery-address-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Antari's proposal headline */
+.proposal-hero .hero-overlay {
+  background: linear-gradient(180deg, rgba(9, 9, 9, 0.06) 0%, rgba(9, 9, 9, 0.72) 58%, rgba(9, 9, 9, 0.95) 100%);
+}
+
+.proposal-hero-content {
+  bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.proposal-kicker {
+  width: fit-content;
+  border: 1px solid rgba(255, 138, 31, 0.48);
+  border-radius: var(--radius-full);
+  padding: 7px 12px;
+  background: rgba(255, 138, 31, 0.14);
+  color: var(--accent-secondary);
+  font-size: 0.68rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.proposal-headline {
+  margin: 0;
+  max-width: 10ch;
+  font-family: var(--font-heading);
+  font-size: clamp(2.6rem, 13vw, 4.9rem);
+  font-weight: 900;
+  line-height: 0.9;
+  letter-spacing: 0;
+  text-transform: uppercase;
+  color: #fff7ed;
+  text-shadow: 0 5px 22px rgba(0, 0, 0, 0.48);
+}
+
+.proposal-headline span {
+  background: linear-gradient(105deg, #ffc24b, #ff8a1f, #e23413);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.proposal-tagline {
+  margin: 0;
+  color: #ffc24b;
+  font-family: var(--font-heading);
+  font-size: 1rem;
+  font-weight: 800;
+}
+
+/* Desktop refinements for the Antari's proposal */
+.proposal-headline {
+  max-width: 11ch;
+  font-size: clamp(2rem, 9vw, 3.35rem);
+  line-height: 0.95;
+}
+
+.proposal-kicker {
+  font-size: 0.62rem;
+  padding: 6px 10px;
+}
+
+.proposal-tagline {
+  font-size: 0.92rem;
+}
+
+@media (min-width: 760px) {
+  body {
+    align-items: flex-start;
+  }
+
+  .app-shell {
+    max-width: 1120px;
+    min-height: 100vh;
+    border-left: 1px solid rgba(255, 255, 255, 0.06);
+    border-right: 1px solid rgba(255, 255, 255, 0.06);
+  }
+
+  .main-header,
+  .tenant-bar,
+  .category-nav-wrapper {
+    padding-left: clamp(24px, 5vw, 54px);
+    padding-right: clamp(24px, 5vw, 54px);
+  }
+
+  .hero-section {
+    margin: 18px clamp(24px, 5vw, 54px) 0;
+  }
+
+  .pizza-hero .hero-media-wrapper {
+    height: clamp(300px, 38vw, 430px);
+  }
+
+  .proposal-hero-content {
+    left: clamp(28px, 5vw, 58px);
+    right: clamp(28px, 5vw, 58px);
+    bottom: clamp(26px, 4vw, 46px);
+    gap: 10px;
+  }
+
+  .proposal-headline {
+    font-size: clamp(3.4rem, 7vw, 5.5rem);
+    max-width: 12ch;
+  }
+
+  .proposal-kicker {
+    font-size: 0.72rem;
+    padding: 8px 14px;
+  }
+
+  .proposal-tagline {
+    font-size: 1.15rem;
+  }
+
+  .section-container {
+    padding-left: clamp(24px, 5vw, 54px);
+    padding-right: clamp(24px, 5vw, 54px);
+  }
+
+  .products-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+    padding: 0;
+  }
+
+  .products-category-group {
+    margin-bottom: 36px;
+  }
+
+  .product-card-main .product-card-media {
+    height: clamp(185px, 22vw, 255px);
+  }
+}
+
+@media (min-width: 1040px) {
+  .products-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 430px) {
+  .proposal-headline {
+    font-size: clamp(1.85rem, 10vw, 2.65rem);
+    max-width: 10.5ch;
+  }
+
+  .proposal-kicker {
+    max-width: 100%;
+    font-size: 0.58rem;
+  }
+}

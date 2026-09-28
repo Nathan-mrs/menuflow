@@ -22,9 +22,9 @@ const MenuErrorPage = ({ message, onRetry, loading }) => (
     <div className="tenant-bar"><div className="tenant-brand-pill">MenuFlow</div></div>
     <section className="menu-error-card">
       <div className="menu-error-icon"><AlertTriangle size={30} /></div>
-      <span className="section-tag">Cardapio indisponivel</span>
-      <h1>Nao foi possivel carregar este cardapio agora.</h1>
-      <p>{message || 'Verifique a configuracao do Supabase e tente novamente.'}</p>
+      <span className="section-tag">Cardápio indisponível</span>
+      <h1>Não foi possível carregar este cardápio agora.</h1>
+      <p>{message || 'Verifique a configuração do Supabase e tente novamente.'}</p>
       <button type="button" className="whatsapp-cta-btn" onClick={onRetry} disabled={loading}>
         <RefreshCw size={18} /> {loading ? 'Tentando...' : 'Tentar novamente'}
       </button>
@@ -53,7 +53,7 @@ function AppContent() {
     return (
       <div className="app-shell pizza-menu-shell menu-error-shell">
         <div className="tenant-bar"><div className="tenant-brand-pill">MenuFlow</div></div>
-        <section className="menu-error-card"><span className="section-tag">Carregando</span><h1>Buscando cardapio...</h1></section>
+        <section className="menu-error-card"><span className="section-tag">Carregando</span><h1>Buscando cardápio...</h1></section>
       </div>
     );
   }
@@ -73,9 +73,9 @@ function AppContent() {
 
       <main className="section-container menu-main" id="cardapio-completo">
         <div className="menu-heading">
-          <span className="section-tag">{isDemoMode || restaurant.isDemo ? 'Demonstracao' : 'Cardapio digital'}</span>
+          <span className="section-tag">{restaurant.isConceptProposal ? 'Proposta não oficial' : (isDemoMode || restaurant.isDemo ? 'Demonstração' : 'Cardápio digital')}</span>
           <h2 className="section-title">{restaurant.name}</h2>
-          <p className="section-subtitle">{restaurant.isDemo ? 'Dados ficticios para demonstracao comercial.' : (restaurant.tagline || 'Escolha seus itens e confirme o pedido pelo WhatsApp da pizzaria.')}</p>
+          <p className="section-subtitle">{restaurant.conceptNotice || (restaurant.isDemo ? 'Dados fictícios para demonstração comercial.' : (restaurant.tagline || 'Escolha seus itens e confirme o pedido pelo WhatsApp da pizzaria.'))}</p>
         </div>
 
         {restaurant.categories.map((cat) => {
@@ -87,7 +87,7 @@ function AppContent() {
           return (
             <section key={cat.id} id={`cat-${cat.id}`} className="products-category-group">
               <div className="category-group-header">
-                <span className="category-icon">{cat.icon}</span>
+                {cat.icon && <span className="category-icon">{cat.icon}</span>}
                 <h3 className="category-group-title">{cat.name}</h3>
               </div>
               <div className="products-grid">
@@ -130,4 +130,3 @@ export default function App() {
 
   return <AppContent />;
 }
-

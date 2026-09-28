@@ -1,4 +1,4 @@
-// Formatting and WhatsApp message helpers for MenuFlow
+﻿// Formatting and WhatsApp message helpers for MenuFlow
 
 export const parsePrice = (value) => {
   if (value === null || value === undefined || value === '') return null;
@@ -51,7 +51,7 @@ const describeCartItem = (item) => {
   return parts;
 };
 
-export const createCartWhatsAppOrderLink = ({ phone, restaurantName, items = [], total = 0 }) => {
+export const createCartWhatsAppOrderLink = ({ phone, restaurantName, items = [], total = 0, fulfillment = null }) => {
   const cleanPhone = cleanWhatsAppPhone(phone);
   if (!cleanPhone) return '';
   if (!items.length || !isValidPrice(total)) return '';
@@ -62,6 +62,20 @@ export const createCartWhatsAppOrderLink = ({ phone, restaurantName, items = [],
   lines.push('Gostaria de confirmar este pedido:');
   lines.push('');
 
+  if (fulfillment?.type === 'delivery') {
+    lines.push('Modalidade: Entrega');
+    lines.push(`Endereço: ${fulfillment.street}, nº ${fulfillment.number}, ${fulfillment.neighborhood}`);
+    if (fulfillment.reference) lines.push(`Referência: ${fulfillment.reference}`);
+    lines.push('Taxa de entrega e total final a confirmar pela pizzaria no WhatsApp.');
+    lines.push('');
+  }
+
+  if (fulfillment?.type === 'pickup') {
+    lines.push('Modalidade: Retirada no local');
+    if (fulfillment.restaurantAddress) lines.push(`Endereço da pizzaria: ${fulfillment.restaurantAddress}`);
+    lines.push('');
+  }
+
   items.forEach((item) => {
     const subtotal = item.unitPrice * item.quantity;
     lines.push(`${item.quantity}x ${item.product.name} - ${formatPrice(subtotal)}`);
@@ -71,8 +85,8 @@ export const createCartWhatsAppOrderLink = ({ phone, restaurantName, items = [],
     lines.push('');
   });
 
-  lines.push(`Valor estimado: ${formatPrice(total)}`);
-  lines.push('O pedido ainda não está confirmado pelo site. Por favor, confirme disponibilidade, endereço, taxa de entrega e forma de pagamento por aqui.');
+  lines.push(`Subtotal dos produtos: ${formatPrice(total)}`);
+  lines.push('O pedido ainda não está confirmado pelo site. Por favor, confirme disponibilidade, taxa de entrega, total final e forma de pagamento por aqui.');
 
   return `https://api.whatsapp.com/send?phone=${cleanPhone}&text=${encodeURIComponent(lines.join('\n'))}`;
 };

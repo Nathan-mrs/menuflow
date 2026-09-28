@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import { useRestaurant } from '../../context/RestaurantContext';
 import { X, MapPin, Clock, Phone, Navigation, CreditCard, ShieldCheck } from 'lucide-react';
 
@@ -14,7 +14,7 @@ export const RestaurantInfoModal = () => {
   const { restaurant, infoOpen, setInfoOpen } = useRestaurant();
   if (!infoOpen) return null;
 
-  const hasMapsUrl = Boolean(restaurant.mapsUrl && !restaurant.isDemo);
+  const hasMapsUrl = Boolean(restaurant.mapsUrl);
   const hasInstagram = Boolean(restaurant.instagram);
   const hasPhone = Boolean(restaurant.phone);
 
@@ -28,15 +28,15 @@ export const RestaurantInfoModal = () => {
         </div>
 
         <div className="info-modal-body">
-          <div className="info-highlight-card"><p>{restaurant.tagline}</p><span>{restaurant.slogan}</span></div>
-          <div className="info-row-card"><div className="info-icon-box"><Clock size={18} color="var(--accent-secondary)" /></div><div><small>Horário de funcionamento</small><strong>{restaurant.openingHours || 'Horário não informado'}</strong><span><span className="status-dot"></span>{restaurant.statusText || 'Consulte disponibilidade'}</span></div></div>
-          <div className="info-row-card"><div className="info-icon-box"><MapPin size={18} color="var(--accent-secondary)" /></div><div><small>Endereço</small><strong>{restaurant.address || 'Endereço não informado'}</strong>{restaurant.isDemo && <span>Endereço ilustrativo para demonstração. Nenhuma rota real foi configurada.</span>}{hasMapsUrl && <a href={restaurant.mapsUrl} target="_blank" rel="noopener noreferrer" className="maps-link-btn"><Navigation size={14} /> Ver rota no Google Maps</a>}</div></div>
+          <div className="info-highlight-card"><p>{restaurant.tagline}</p><span>{restaurant.conceptNotice || restaurant.slogan}</span></div>
+          <div className="info-row-card"><div className="info-icon-box"><Clock size={18} color="var(--accent-secondary)" /></div><div><small>Horário de funcionamento informado</small><strong>{restaurant.openingHours || 'Horário não informado'}</strong><span><span className="status-dot"></span>{restaurant.statusText || 'Consulte disponibilidade'}</span></div></div>
+          <div className="info-row-card"><div className="info-icon-box"><MapPin size={18} color="var(--accent-secondary)" /></div><div><small>Endereço informado</small><strong>{restaurant.address || 'Endereço não informado'}</strong>{restaurant.mapsNote && <span>{restaurant.mapsNote}</span>}{hasMapsUrl && <a href={restaurant.mapsUrl} target="_blank" rel="noopener noreferrer" className="maps-link-btn"><Navigation size={14} /> Ver rota no Google Maps</a>}</div></div>
           <div className="info-actions-grid">
             {hasInstagram && <a href={`https://instagram.com/${restaurant.instagram.replace('@', '')}`} target="_blank" rel="noopener noreferrer" className="btn-secondary-action"><InstagramIcon size={18} color="#E1306C" /> Instagram</a>}
             {hasPhone && <a href={`tel:${restaurant.phone.replace(/\D/g, '')}`} className="btn-secondary-action"><Phone size={18} color="var(--accent-secondary)" /> Ligar</a>}
           </div>
-          <div className="payment-card"><div><CreditCard size={16} color="var(--accent-secondary)" /><strong>Pagamento</strong></div><span>A forma de pagamento e a taxa de entrega são confirmadas na conversa com a pizzaria.</span></div>
-          <div className="info-footer-note"><ShieldCheck size={20} color="#34D399" /><span>{restaurant.isDemo ? 'Demonstração MenuFlow com dados fictícios.' : 'Cardápio digital personalizado mantido pelo desenvolvedor.'} Avaliações aparecem quando coletadas por convite verificado.</span></div>
+          <div className="payment-card"><div><CreditCard size={16} color="var(--accent-secondary)" /><strong>Pedido e pagamento</strong></div><span>Taxa de entrega, total final e forma de pagamento devem ser confirmados diretamente com a pizzaria no WhatsApp.</span></div>
+          <div className="info-footer-note"><ShieldCheck size={20} color="#34D399" /><span>Proposta conceitual MenuFlow. Não é um site oficial da {restaurant.name}. Avaliações só devem aparecer quando houver convites verificados após compras reais.</span></div>
         </div>
       </div>
     </section>
