@@ -9,7 +9,7 @@ export const CategoryNav = () => {
     setActiveCategory(categoryId);
     const element = document.getElementById(`cat-${categoryId}`);
     if (element) {
-      const yOffset = -120;
+      const yOffset = -80;
       const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset;
       window.scrollTo({ top: y, behavior: 'smooth' });
     }
@@ -25,6 +25,7 @@ export const CategoryNav = () => {
               key={cat.id}
               type="button"
               className={`category-pill ${isActive ? 'active' : ''}`}
+              aria-current={isActive ? 'true' : undefined}
               onClick={() => handleCategoryClick(cat.id)}
             >
               <span className="category-icon">{cat.icon}</span>

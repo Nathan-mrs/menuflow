@@ -9,15 +9,17 @@ export const SearchOverlay = () => {
 
   const filteredProducts = useMemo(() => {
     if (!query.trim()) return [];
-    const q = query.toLowerCase().trim();
+    const normalize = value => value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+    const q = normalize(query.trim());
     return restaurant.products.filter((p) => {
-      const nameMatch = p.name.toLowerCase().includes(q);
-      const descMatch = p.description.toLowerCase().includes(q);
-      const catMatch = p.category.toLowerCase().includes(q);
-      const ingredientsMatch = p.ingredients?.some((ing) => ing.toLowerCase().includes(q));
+      const nameMatch = normalize(p.name).includes(q);
+      const descMatch = normalize(p.description).includes(q);
+      const categoryName = restaurant.categories.find(category => category.id === p.category)?.name || p.category;
+      const catMatch = normalize(categoryName).includes(q);
+      const ingredientsMatch = p.ingredients?.some((ing) => normalize(ing).includes(q));
       return p.status !== 'paused' && (nameMatch || descMatch || catMatch || ingredientsMatch);
     });
-  }, [query, restaurant.products]);
+  }, [query, restaurant.products, restaurant.categories]);
 
   if (!searchOpen) return null;
 
@@ -30,6 +32,9 @@ export const SearchOverlay = () => {
           <input
             type="text"
             className="search-input-field"
+            aria-label="Buscar produtos e ingredientes"
+            inputMode="search"
+            enterKeyHint="search"
             placeholder="Buscar no cardápio (ex: calabresa, trufa, burger)..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
@@ -91,6 +96,9 @@ export const SearchOverlay = () => {
               <div
                 key={prod.id}
                 className="search-result-item"
+                role="button"
+                tabIndex={0}
+                onKeyDown={event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); setSelectedProduct(prod); setSearchOpen(false); } }}
                 onClick={() => {
                   setSelectedProduct(prod);
                   setSearchOpen(false);

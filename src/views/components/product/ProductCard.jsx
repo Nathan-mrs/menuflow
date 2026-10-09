@@ -16,6 +16,8 @@ export const ProductCard = ({ product }) => {
       tabIndex={0}
       onKeyDown={(e) => {
         if (e.key === 'Enter' || e.key === ' ') {
+          if (e.target !== e.currentTarget) return;
+          e.preventDefault();
           setSelectedProduct(product);
         }
       }}

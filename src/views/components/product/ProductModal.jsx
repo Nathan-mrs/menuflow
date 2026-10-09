@@ -343,7 +343,7 @@ const ProductDetails = () => {
             id="btn-pedir-whatsapp"
           >
             <MessageCircle size={20} />
-            <span>Pedir pelo WhatsApp • {formatPrice(totalPrice)}</span>
+            <span className="order-button-label">Pedir pelo WhatsApp<strong>{formatPrice(totalPrice)}</strong></span>
           </a>
         </div>
       </div>

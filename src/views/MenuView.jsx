@@ -13,12 +13,13 @@ import { RestaurantInfoModal } from './components/info/RestaurantInfoModal';
 import { QRCodeModal } from './components/qrcode/QRCodeModal';
 import { Toast } from './components/common/Toast';
 import { formatPrice } from '../utils/formatters';
-import { Star, ShieldCheck } from 'lucide-react';
+import { Star, ShieldCheck, Search } from 'lucide-react';
 
 function AppContent() {
   const {
     restaurant,
     setSelectedProduct,
+    setSearchOpen,
   } = useRestaurant();
 
   // Featured products for "Favoritos da casa"
@@ -31,6 +32,8 @@ function AppContent() {
 
       {/* Hero Visual Area */}
       <Hero />
+
+      <div className="menu-search-container"><button type="button" className="menu-search-trigger" onClick={() => setSearchOpen(true)}><Search size={20} /><span>O que você quer comer hoje?</span><span className="menu-search-hint">Buscar</span></button></div>
 
       {/* Horizontal Category Nav */}
       <CategoryNav />
@@ -55,6 +58,7 @@ function AppContent() {
               onClick={() => setSelectedProduct(prod)}
               role="button"
               tabIndex={0}
+              onKeyDown={event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); setSelectedProduct(prod); } }}
             >
               <div className="featured-media">
                 <img src={prod.image} alt={prod.name} className="featured-img" loading="lazy" />

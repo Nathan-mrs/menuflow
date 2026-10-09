@@ -83,7 +83,7 @@ export const QRCodeModal = () => {
           </p>
 
           {/* Table Selector */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center', gap: '8px' }}>
             <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)', fontWeight: 600 }}>Identificação:</span>
             {['Geral', 'Mesa 01', 'Mesa 02', 'Mesa 03', 'Balcão'].map((tab) => (
               <button
@@ -95,6 +95,7 @@ export const QRCodeModal = () => {
                   color: selectedTable === tab ? '#000' : 'var(--text-secondary)',
                   border: '1px solid ' + (selectedTable === tab ? 'transparent' : 'rgba(255, 255, 255, 0.1)'),
                   padding: '4px 10px',
+                  minHeight: '44px',
                   borderRadius: 'var(--radius-full)',
                   fontSize: '0.74rem',
                   fontWeight: 700,
@@ -140,11 +141,11 @@ export const QRCodeModal = () => {
           </div>
 
           {/* Action Buttons */}
-          <div style={{ display: 'flex', gap: '10px', width: '100%', marginTop: '6px' }}>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', width: '100%', marginTop: '6px' }}>
             <button
               type="button"
               className="btn-primary-action"
-              style={{ flex: 1, justifyContent: 'center', padding: '12px' }}
+              style={{ flex: '1 1 180px', justifyContent: 'center', gap: '8px', padding: '12px' }}
               onClick={handleDownload}
               disabled={!qrReady}
             >

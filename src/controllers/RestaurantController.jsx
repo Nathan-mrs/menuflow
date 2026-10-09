@@ -14,6 +14,19 @@ export function RestaurantProvider({ children }) {
   const [favoritesOpen, setFavoritesOpen] = useState(false);
   const [favorites, setFavorites] = useState(loadFavorites);
   const [toast, setToast] = useState(null);
+  const overlayOpen = Boolean(selectedProduct || reviewModalProduct || searchOpen || infoOpen || qrCodeOpen || favoritesOpen);
+  useEffect(() => {
+    if (!overlayOpen) return;
+    const original = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    const onKeyDown = event => {
+      if (event.key !== 'Escape') return;
+      setSelectedProduct(null); setReviewModalProduct(null); setSearchOpen(false);
+      setInfoOpen(false); setQrCodeOpen(false); setFavoritesOpen(false);
+    };
+    document.addEventListener('keydown', onKeyDown);
+    return () => { document.body.style.overflow = original; document.removeEventListener('keydown', onKeyDown); };
+  }, [overlayOpen]);
   const refresh = useCallback(async () => {
     const result = await request('/restaurant');
     setRestaurant(result);
