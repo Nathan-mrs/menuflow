@@ -1,0 +1,83 @@
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import { spawn } from 'node:child_process';
+import { once } from 'node:events';
+import { mkdtemp, rm, readFile } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { createServer } from 'node:net';
+
+test('acesso administrativo, validação e persistência', async t => {
+  const data = await mkdtemp(join(tmpdir(), 'menuflow-test-'));
+  const socket = createServer();
+  socket.listen(0, '127.0.0.1');
+  await once(socket, 'listening');
+  const port = socket.address().port;
+  await new Promise(resolve => socket.close(resolve));
+  const base = `http://127.0.0.1:${port}`;
+  const email = 'owner@example.test';
+  const password = 'test-password-123456';
+  let child;
+  const start = async () => {
+    child = spawn(process.execPath, ['server/index.js'], { env: { ...process.env, NODE_ENV: 'production', PORT: String(port), HOST: '127.0.0.1', DATA_DIR: data, ADMIN_EMAIL: email, ADMIN_PASSWORD: password }, stdio: ['ignore', 'pipe', 'pipe'] });
+    let output = '';
+    child.stderr.on('data', chunk => { output += chunk; });
+    await Promise.race([
+      new Promise((resolve, reject) => {
+        child.stdout.on('data', chunk => { if (String(chunk).includes('MenuFlow:')) resolve(); });
+        child.once('exit', code => reject(new Error(`Servidor encerrou: ${code} ${output}`)));
+      }),
+      new Promise((_, reject) => { const timer = setTimeout(() => reject(new Error('Servidor não iniciou.')), 20000); timer.unref(); }),
+    ]);
+  };
+  const stop = async () => { if (child && child.exitCode === null) { const exited = once(child, 'exit'); child.kill(); await exited; } };
+  t.after(async () => { await stop(); await rm(data, { recursive: true, force: true }); });
+  await start();
+  let cookie;
+  const request = (path, method = 'GET', body, authenticated = false, extra = {}) => fetch(`${base}/api${path}`, { method, headers: { 'Content-Type': 'application/json', ...(authenticated ? { Cookie: cookie } : {}), ...extra }, ...(body !== undefined ? { body: JSON.stringify(body) } : {}) });
+  const initial = await (await request('/restaurant')).json();
+  assert.equal(initial.id, 'bola-pizza');
+  assert.equal((await request('/products', 'POST', {})).status, 401);
+  assert.equal((await request('/restaurant', 'PATCH', { name: 'invasor' })).status, 401);
+  const first = initial.products[0];
+  assert.equal((await request(`/products/${first.id}`, 'DELETE', {})).status, 401);
+  assert.equal((await request('/session', 'POST', { email, password: 'errada' })).status, 401);
+  const session = await request('/session', 'POST', { email, password });
+  assert.equal(session.status, 200);
+  const rawCookie = session.headers.get('set-cookie');
+  assert.match(rawCookie, /HttpOnly/);
+  assert.match(rawCookie, /SameSite=Strict/);
+  assert.match(rawCookie, /Secure/);
+  cookie = rawCookie.split(';')[0];
+  assert.equal((await (await request('/session', 'GET', undefined, true)).json()).authenticated, true);
+  assert.equal((await request('/restaurant', 'PATCH', { name: 'cross-origin' }, true, { Origin: 'https://external.example' })).status, 403);
+  const product = { name: 'Produto de teste', category: initial.categories[0].id, price: 12.5, description: 'Teste', image: '', ingredients: ['Queijo'] };
+  assert.equal((await request('/products', 'POST', { ...product, price: -1 }, true)).status, 400);
+  const createdResponse = await request('/products', 'POST', product, true);
+  assert.equal(createdResponse.status, 200);
+  const created = (await createdResponse.json()).products.find(p => p.name === product.name);
+  assert.ok(created);
+  assert.equal(created.reviewsCount, 0);
+  assert.equal((await request(`/products/${created.id}`, 'PATCH', { ...product, name: 'Editado' }, true)).status, 200);
+  await request(`/products/${created.id}`, 'PATCH', { status: 'paused' }, true);
+  assert.equal((await (await request('/restaurant')).json()).products.some(p => p.id === created.id), false);
+  assert.equal((await (await request('/restaurant', 'GET', undefined, true)).json()).products.some(p => p.id === created.id), true);
+  await request(`/products/${created.id}`, 'PATCH', { status: 'active' }, true);
+  const reviewed = await (await request(`/products/${created.id}/reviews`, 'POST', { rating: 4, comment: 'Bom', author: 'Cliente' })).json();
+  const updated = reviewed.products.find(p => p.id === created.id);
+  assert.equal(updated.rating, 4);
+  assert.equal(updated.reviews[0].verified, false);
+  const moderated = await (await request(`/products/${created.id}/reviews/${updated.reviews[0].id}`, 'DELETE', {}, true)).json();
+  assert.equal(moderated.products.find(p => p.id === created.id).reviewsCount, 0);
+  assert.equal((await request('/restaurant', 'PATCH', { name: 'Restaurante teste' }, true)).status, 200);
+  assert.equal(JSON.parse(await readFile(join(data, 'restaurant.json'), 'utf8')).name, 'Restaurante teste');
+  assert.equal((await fetch(`${base}/admin`)).status, 200);
+  assert.equal((await fetch(`${base}/`)).status, 200);
+  await request('/session', 'DELETE', {}, true);
+  assert.equal((await request(`/products/${created.id}`, 'DELETE', {}, true)).status, 401);
+  for (let i = 0; i < 5; i++) await request('/session', 'POST', { email, password: 'errada' });
+  assert.equal((await request('/session', 'POST', { email, password: 'errada' })).status, 429);
+  await stop();
+  await start();
+  assert.equal((await (await request('/restaurant')).json()).name, 'Restaurante teste');
+});
