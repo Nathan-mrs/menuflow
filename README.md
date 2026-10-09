@@ -2,6 +2,8 @@
 
 Cardápio digital de um único restaurante, com área pública em `/` e painel do proprietário em `/admin`.
 
+Endereço de produção: https://menuflow-8ju.pages.dev/ · Painel: https://menuflow-8ju.pages.dev/admin
+
 ## Requisitos e instalação
 
 - Node.js 22.16 ou superior (linha 22 LTS) e npm.

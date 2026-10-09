@@ -2,11 +2,13 @@
 
 O frontend é servido pelo Pages. As rotas `/api/*` executam Pages Functions usando as mesmas regras da API local, com persistência D1. O painel continua em `/admin`.
 
+Projeto: `menuflow`. Endereço de produção: https://menuflow-8ju.pages.dev/. O banco `menuflow-db` está vinculado no `wrangler.toml`. As instruções de criação abaixo se aplicam à configuração inicial em outra conta; não recrie os recursos existentes para atualizar o site.
+
 ## Primeira publicação
 
 1. Instale as dependências (`npm ci`) e autentique a conta (`npx wrangler login`).
 2. Crie o banco: `npx wrangler d1 create menuflow-db`.
-3. Atualize `database_id` no `wrangler.toml` com o UUID retornado. O ID inicial é um placeholder apenas para desenvolvimento local.
+3. Atualize `database_id` no `wrangler.toml` com o UUID retornado para a nova conta.
 4. Aplique o esquema: `npm run cf:migrate`.
 5. Crie o projeto: `npx wrangler pages project create menuflow --production-branch=main`.
 6. Execute `npm run build`, `npm run lint` e `npm test`.

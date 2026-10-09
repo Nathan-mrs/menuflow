@@ -5,6 +5,5 @@ compatibility_date = "2026-10-09"
 [[d1_databases]]
 binding = "DB"
 database_name = "menuflow-db"
-# Substituído pelo ID real após criar o banco na conta Cloudflare.
-database_id = "00000000-0000-0000-0000-000000000001"
+database_id = "73e694fd-8ca2-4b7a-825e-33930747eb90"
 migrations_dir = "migrations"
