@@ -42,11 +42,13 @@ O único exemplo mantido é o Bola Pizza, em `server/models/restaurantSeed.js`. 
 - Listar categorias, remover avaliações e editar dados do estabelecimento.
 - Indicadores baseados nos produtos e comentários cadastrados. Não há indicadores fictícios de pedidos.
 
-As alterações administrativas são autorizadas no servidor. O login usa comparação de hash scrypt, cookies HttpOnly/SameSite e limitação de tentativas. Em produção, cookies exigem HTTPS. Sessões ficam em memória e são encerradas quando o servidor reinicia.
+As alterações administrativas são autorizadas no servidor. No servidor Node.js, o login usa hash scrypt e sessões em memória. Na Cloudflare, utiliza hash PBKDF2 e sessões persistidas no D1. Ambos usam cookies HttpOnly/SameSite e limitação de tentativas; em produção, cookies exigem HTTPS.
 
 ## Dados e hospedagem
 
-As alterações são gravadas em `storage/restaurant.json` por escrita atômica. Configure `DATA_DIR` para um diretório persistente se a hospedagem utilizar discos temporários. Faça backup desse diretório. Esta implementação é para uma instância do servidor; várias réplicas exigem armazenamento e sessões compartilhados.
+Na Cloudflare Pages, as alterações são gravadas no D1, com controle de versão para evitar perda de alterações simultâneas. Consulte [a configuração e publicação na Cloudflare](docs/CLOUDFLARE.md).
+
+No servidor Node.js local, as alterações são gravadas em `storage/restaurant.json` por escrita atômica. Configure `DATA_DIR` para um diretório persistente se usar esse servidor em outra hospedagem. Essa modalidade é para uma instância do servidor.
 
 Para produção:
 
@@ -55,7 +57,7 @@ Para produção:
 3. Execute `npm start` atrás de um proxy com HTTPS.
 4. Configure `HOST=0.0.0.0` quando a plataforma precisar de acesso externo à porta, e ajuste `PORT` conforme o provedor.
 
-O servidor entrega tanto o frontend quanto a API. GitHub Pages não executa Node.js e não atende à autenticação e à persistência desta versão. O antigo deploy estático foi substituído por CI de validação; nenhuma nova hospedagem foi publicada.
+O servidor Node.js entrega frontend e API nessa modalidade. Na Cloudflare, o Pages entrega o frontend e Pages Functions executam a API. GitHub Pages não atende à autenticação e à persistência desta versão. O GitHub executa CI de validação.
 
 ## Verificação
 

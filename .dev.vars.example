@@ -1,0 +1,3 @@
+ADMIN_EMAIL=proprietario@restaurante.com
+# Gerado com npm run cf:credentials a partir do .env local.
+ADMIN_PASSWORD_HASH=
